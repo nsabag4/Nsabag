@@ -1,0 +1,8 @@
+# setup-wsl.sh must keep LF endings (bash inside WSL chokes on CRLF).
+# install.ps1 additionally strips CR defensively when transferring, but do not
+# rely on that for other tooling.
+*.sh text eol=lf
+# PowerShell scripts: CRLF + UTF-8 BOM (BOM is required for PowerShell 5.1 to
+# read the Hebrew strings correctly).
+*.ps1 text eol=crlf
+*.md text

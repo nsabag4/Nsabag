@@ -1,0 +1,24 @@
+# udev rules for Avision AV210-family sheetfed scanners (userspace driver).
+#
+# Install:  sudo cp 99-av210.rules /etc/udev/rules.d/
+#           sudo udevadm control --reload && sudo udevadm trigger
+# then unplug/replug the scanner.
+#
+# TAG+="uaccess" grants the locally logged-in user access on systemd
+# distributions; MODE/GROUP is the fallback for the classic "scanner" group.
+
+ACTION!="add", GOTO="av210_rules_end"
+SUBSYSTEM!="usb", GOTO="av210_rules_end"
+
+# Avision AV210
+ATTRS{idVendor}=="0638", ATTRS{idProduct}=="0a24", MODE="0664", GROUP="scanner", TAG+="uaccess"
+# Avision AV210C2 (pre-production id)
+ATTRS{idVendor}=="0638", ATTRS{idProduct}=="0a25", MODE="0664", GROUP="scanner", TAG+="uaccess"
+# Avision AV210C2-G
+ATTRS{idVendor}=="0638", ATTRS{idProduct}=="0a2f", MODE="0664", GROUP="scanner", TAG+="uaccess"
+# Avision AV210C2
+ATTRS{idVendor}=="0638", ATTRS{idProduct}=="0a3a", MODE="0664", GROUP="scanner", TAG+="uaccess"
+# Avision AV210D2+
+ATTRS{idVendor}=="0638", ATTRS{idProduct}=="1a35", MODE="0664", GROUP="scanner", TAG+="uaccess"
+
+LABEL="av210_rules_end"
