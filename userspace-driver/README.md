@@ -35,7 +35,7 @@ through **WinUSB**:
 3. Choose **WinUSB** as the target driver and click **Replace Driver**.
 4. Install and test the driver:
 
-   ```
+   ```sh
    pip install .     # from this directory (the package is not published on PyPI)
    av210 probe
    ```

@@ -24,7 +24,7 @@ NAPS2‏ (Not Another PDF Scanner 2) היא תוכנת סריקה חינמית �
 
 </div>
 
-```
+```text
 localhost:8090
 ```
 

@@ -46,7 +46,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1
 
 </div>
 
-```
+```bash
 pip install ./userspace-driver
 av210 probe
 av210 scan -o document.pdf --resolution 300 --mode color --all-pages

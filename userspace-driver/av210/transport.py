@@ -425,13 +425,13 @@ class AvisionTransport:
             # 1. CDB on bulk-OUT (avision.c:2574-2597)
             try:
                 written = self._dev.bulk_write(m_cmd, write_timeout)
-            except _UsbIOError:
+            except _UsbIOError as exc:
                 # 1-try 500 ms status read "to clear the FIFO"
                 # (avision.c:2585-2597); only a GOOD byte allows a retry.
                 drained = self._read_status_byte(1, DRAIN_STATUS_TIMEOUT_MS)
                 if drained == USB_STATUS_GOOD:
                     continue
-                raise TransportError("USB command write failed")
+                raise TransportError("USB command write failed") from exc
             if written != len(m_cmd):
                 continue  # short write with GOOD status -> retry (avision.c:2596)
 

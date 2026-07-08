@@ -31,8 +31,8 @@ __version__ = "0.1.0"
 __all__ = [
     "__version__",
     "AV210Scanner",
-    "AvisionTransport",
     "AvisionError",
+    "AvisionTransport",
     "CoverOpenError",
     "DeviceBusyError",
     "DeviceNotFoundError",

@@ -8,7 +8,7 @@ The Avision AV210C2 (USB `0638:0A3A`) has no official Windows 10/11 driver. The 
 
 ## Data flow
 
-```
+```text
 Avision AV210C2 -- USB --> Windows host
                               |
                               | usbipd-win (USB/IP; Windows service)

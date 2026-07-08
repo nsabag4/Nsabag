@@ -391,11 +391,13 @@ try {
 
     $setupExit = & $runSetup $envPrefix
     if ($setupExit -eq 42) {
-        # setup-wsl.sh just enabled systemd; restart WSL and run it once more.
+        # setup-wsl.sh just enabled systemd; restart only this distro (not the
+        # whole WSL VM) and run it once more. Terminating the distro re-reads
+        # /etc/wsl.conf on the next launch, which activates systemd.
         # ($remoteScript lives under /root, so it survives the restart.)
-        Write-Host "    systemd was enabled inside the distro; restarting WSL and re-running setup..." -ForegroundColor Yellow
-        Write-Host "    systemd הופעל בהפצה; מאתחל את WSL ומריץ שוב את ההגדרה..." -ForegroundColor Yellow
-        & wsl.exe --shutdown
+        Write-Host "    systemd was enabled inside the distro; restarting the distro and re-running setup..." -ForegroundColor Yellow
+        Write-Host "    systemd הופעל בהפצה; מאתחל את ההפצה ומריץ שוב את ההגדרה..." -ForegroundColor Yellow
+        & wsl.exe --terminate $DistroName
         Start-Sleep -Seconds 8
         $setupExit = & $runSetup $envPrefix
         if ($setupExit -eq 42) {

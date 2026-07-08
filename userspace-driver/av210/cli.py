@@ -66,23 +66,22 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _cmd_probe() -> int:
-    scanner = AV210Scanner()
-    info = scanner.open()
-    device = scanner.transport.device
-    describe = getattr(device, "describe", None)
-    if callable(describe):
-        print("Endpoints: %s" % describe())
-    print("INQUIRY:")
-    for field in fields(info):
-        value = getattr(info, field.name)
-        if isinstance(value, float):
-            value = "%.1f" % value
-        elif isinstance(value, int) and not isinstance(value, bool) and field.name in (
-            "data_dq", "max_shading_target"
-        ):
-            value = "0x%04X" % value
-        print("  %-26s %s" % (field.name, value))
-    scanner.close()
+    with AV210Scanner() as scanner:
+        info = scanner.info
+        device = scanner.transport.device
+        describe = getattr(device, "describe", None)
+        if callable(describe):
+            print("Endpoints: %s" % describe())
+        print("INQUIRY:")
+        for field in fields(info):
+            value = getattr(info, field.name)
+            if isinstance(value, float):
+                value = "%.1f" % value
+            elif isinstance(value, int) and not isinstance(value, bool) and field.name in (
+                "data_dq", "max_shading_target"
+            ):
+                value = "0x%04X" % value
+            print("  %-26s %s" % (field.name, value))
     return 0
 
 
@@ -95,34 +94,35 @@ def _cmd_scan(args: argparse.Namespace) -> int:
     mode = ScanMode(args.mode)
     is_pdf = output.suffix.lower() == ".pdf"
 
-    scanner = AV210Scanner()
-    scanner.open()
-    try:
-        if args.all_pages:
-            images = list(scanner.scan_adf_batch(args.resolution, mode))
+    with AV210Scanner() as scanner:
+        if is_pdf:
+            # PDF needs every page in memory for PIL's append_images.
+            if args.all_pages:
+                images = list(scanner.scan_adf_batch(args.resolution, mode))
+            else:
+                images = [scanner.scan_page(args.resolution, mode)]
+            # PIL renders "1"/"L"/"RGB" pages into a single PDF.
+            pages = [im.convert("RGB") if im.mode not in ("1", "L", "RGB") else im
+                     for im in images]
+            pages[0].save(
+                output, "PDF", resolution=float(args.resolution),
+                save_all=len(pages) > 1, append_images=pages[1:],
+            )
+            print("Wrote %d page(s) to %s" % (len(pages), output))
+        elif args.all_pages:
+            # Non-PDF batches stream to disk page by page, so peak memory
+            # stays one page regardless of feeder depth.
+            count = 0
+            for page, image in enumerate(scanner.scan_adf_batch(args.resolution, mode)):
+                path = _numbered_path(output, page)
+                image.save(path, dpi=(args.resolution, args.resolution))
+                print("Wrote %s" % path)
+                count += 1
+            print("Scanned %d pages" % count)
         else:
-            images = [scanner.scan_page(args.resolution, mode)]
-    finally:
-        scanner.close()
-
-    if is_pdf:
-        # PIL renders "1"/"L"/"RGB" pages into a single PDF.
-        pages = [im.convert("RGB") if im.mode not in ("1", "L", "RGB") else im
-                 for im in images]
-        pages[0].save(
-            output, "PDF", resolution=float(args.resolution),
-            save_all=len(pages) > 1, append_images=pages[1:],
-        )
-        print("Wrote %d page(s) to %s" % (len(pages), output))
-    elif len(images) == 1:
-        images[0].save(output, dpi=(args.resolution, args.resolution))
-        print("Wrote %s" % output)
-    else:
-        for page, image in enumerate(images):
-            path = _numbered_path(output, page)
-            image.save(path, dpi=(args.resolution, args.resolution))
-            print("Wrote %s" % path)
-        print("Scanned %d pages" % len(images))
+            image = scanner.scan_page(args.resolution, mode)
+            image.save(output, dpi=(args.resolution, args.resolution))
+            print("Wrote %s" % output)
     return 0
 
 

@@ -438,19 +438,16 @@ class AV210Scanner:
             useful -= useful % bpl
             out = bytearray(useful)
             n_lines = useful // bpl
+            # Strided slice assignment replaces the per-pixel loop: each
+            # channel is every 3rd byte of its (line-difference shifted)
+            # source line, interleaved into RGB output.
             for n in range(n_lines):
-                r_off = n * bpl
-                g_off = n * bpl + ld * bpl + 1
-                b_off = n * bpl + 2 * ld * bpl + 2
-                o = n * bpl
-                for px in range(params.pixels_per_line):
-                    out[o] = stripe[r_off]
-                    out[o + 1] = stripe[g_off]
-                    out[o + 2] = stripe[b_off]
-                    o += 3
-                    r_off += 3
-                    g_off += 3
-                    b_off += 3
+                base = n * bpl
+                g_off = base + ld * bpl + 1
+                b_off = base + 2 * ld * bpl + 2
+                out[base:base + bpl:3] = stripe[base:base + bpl:3]
+                out[base + 1:base + bpl:3] = stripe[g_off:g_off + bpl:3]
+                out[base + 2:base + bpl:3] = stripe[b_off:b_off + bpl:3]
             del stripe[:useful]
             if final:
                 stripe.clear()
@@ -460,14 +457,13 @@ class AV210Scanner:
             whole = len(stripe) - len(stripe) % bpl
             ppl = params.pixels_per_line
             out = bytearray(whole)
+            # RRR..GGG..BBB -> RGBRGB via strided slice assignment (each
+            # contiguous channel block lands on every 3rd output byte).
             for n in range(whole // bpl):
                 base = n * bpl
-                o = n * bpl
-                for px in range(ppl):
-                    out[o] = stripe[base + px]
-                    out[o + 1] = stripe[base + ppl + px]
-                    out[o + 2] = stripe[base + 2 * ppl + px]
-                    o += 3
+                out[base:base + bpl:3] = stripe[base:base + ppl]
+                out[base + 1:base + bpl:3] = stripe[base + ppl:base + 2 * ppl]
+                out[base + 2:base + bpl:3] = stripe[base + 2 * ppl:base + 3 * ppl]
             del stripe[:whole]
             return bytes(out)
 

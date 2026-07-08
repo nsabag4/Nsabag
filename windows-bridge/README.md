@@ -13,7 +13,7 @@ before rollout.
 
 ## Architecture
 
-```
+```text
  +----------------------------- Windows 10/11 PC ------------------------------+
  |                                                                             |
  |  Avision AV210C2                                                            |

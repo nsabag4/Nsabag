@@ -37,6 +37,9 @@ AIRSANE_SRC="/usr/local/src/AirSane"
 AIRSANE_BUILD="/usr/local/src/AirSane-build"
 SCANSERVJS_BOOTSTRAP="https://raw.githubusercontent.com/sbs20/scanservjs/master/bootstrap.sh"
 SKIP_SCANSERVJS="${SKIP_SCANSERVJS:-0}"
+# scanservjs release passed to the bootstrap's -v flag; override with a
+# pinned tag (e.g. SCANSERVJS_VERSION=v3.0.3) for a deterministic install.
+SCANSERVJS_VERSION="${SCANSERVJS_VERSION:-latest}"
 FORCE_REBUILD_AIRSANE="${FORCE_REBUILD_AIRSANE:-0}"
 
 log()  { printf '[setup-wsl] %s\n' "$*"; }
@@ -211,13 +214,23 @@ elif systemctl list-unit-files 2>/dev/null | grep -q '^scanservjs\.service'; the
     log "scanservjs already installed - skipping."
 else
     log "Installing scanservjs (optional browser scan UI on port 8080)..."
-    # Official Debian/Ubuntu one-liner from the scanservjs README. Non-fatal:
-    # AirSane alone fully covers the eSCL + browser use cases.
-    if curl -fsSL "$SCANSERVJS_BOOTSTRAP" | bash -s -- -v latest; then
+    # Official Debian/Ubuntu bootstrap from the scanservjs README, but
+    # downloaded to a local file first (never piped straight into a root
+    # shell) and gated on a sanity check. Trust assumption: the script is
+    # fetched over TLS from the scanservjs GitHub repository; skip this
+    # optional component entirely with SKIP_SCANSERVJS=1. Pin a release
+    # with SCANSERVJS_VERSION=vX.Y.Z for a deterministic artifact.
+    # Non-fatal either way: AirSane alone fully covers eSCL + browser use.
+    bootstrap_tmp="$(mktemp /tmp/scanservjs-bootstrap.XXXXXX.sh)"
+    if curl -fsSL "$SCANSERVJS_BOOTSTRAP" -o "$bootstrap_tmp" \
+        && [ -s "$bootstrap_tmp" ] \
+        && head -c2 "$bootstrap_tmp" | grep -q '#!' \
+        && bash "$bootstrap_tmp" -v "$SCANSERVJS_VERSION"; then
         log "scanservjs installed (http://localhost:8080)."
     else
         warn "scanservjs install failed - continuing, AirSane on :8090 still provides a web UI."
     fi
+    rm -f "$bootstrap_tmp"
 fi
 
 # -------------------------------------------------------------- self-test
