@@ -52,7 +52,20 @@ function Remove-Sharing {
 
 if ($Disable) {
     Write-Host "Removing LAN sharing... / מסיר את השיתוף ברשת..."
-    Remove-Sharing -PortList $Ports
+    # Plain -Disable must clean up every port this script ever shared, not
+    # just the current default: discover them from our own firewall rules.
+    $portsToRemove = $Ports
+    if (-not $PSBoundParameters.ContainsKey("Ports")) {
+        $rulePattern = "^{0}-(\d+)$" -f ([regex]::Escape($RulePrefix))
+        $managedPorts = @(Get-NetFirewallRule -DisplayName ($RulePrefix + "-*") -ErrorAction SilentlyContinue |
+            ForEach-Object {
+                if ($_.DisplayName -match $rulePattern) {
+                    [int]$Matches[1]
+                }
+            })
+        $portsToRemove = @($Ports + $managedPorts) | Sort-Object -Unique
+    }
+    Remove-Sharing -PortList $portsToRemove
     Write-Host "Done. The scanner is now reachable from this PC only (http://localhost:8090)."
     Write-Host "הסתיים. הסורק זמין כעת רק מהמחשב הזה."
     exit 0
