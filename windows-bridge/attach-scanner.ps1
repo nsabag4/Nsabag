@@ -148,6 +148,11 @@ while ($true) {
         continue
     }
 
+    # Clear any stale attachment first: after a WSL restart usbipd can still
+    # report the device as 'Attached' while the VM no longer has it, and a new
+    # attach then fails forever. Detaching an unattached device is harmless.
+    & $usbipd detach --busid $busid 2>$null | Out-Null
+
     Write-Log ("Attaching BUSID " + $busid + " to WSL (" + $DistroName + ") with --auto-attach --unplugged. This call blocks while it keeps the device attached.")
     # NOTE: --auto-attach works by keeping this client process running; it is not
     # a fire-and-forget setting. If the process exits (error, wsl shutdown, ...),
