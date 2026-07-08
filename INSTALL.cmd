@@ -9,7 +9,8 @@ rem --- Self-elevate to Administrator -----------------------------------
 net session >nul 2>&1
 if %errorlevel% neq 0 (
     echo Requesting administrator permissions...
-    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    set "AV210_INSTALLER=%~f0"
+    powershell -NoProfile -Command "Start-Process -FilePath $env:AV210_INSTALLER -Verb RunAs"
     exit /b
 )
 
@@ -21,6 +22,10 @@ echo   plugged in (24V power + USB). This takes 10-20 minutes.
 echo  ==============================================================
 echo.
 
+rem Trust note: the archive is fetched over TLS from this project's own
+rem GitHub repository - the same trust level as downloading the ZIP by hand.
+rem After the branch is merged/tagged, replace the URL with the release tag
+rem archive (archive/refs/tags/vX.Y.zip) for a fully pinned artifact.
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ErrorActionPreference='Stop';" ^
   "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;" ^
@@ -31,10 +36,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "if (Test-Path $dst) { Remove-Item $dst -Recurse -Force };" ^
   "Write-Host 'Extracting...';" ^
   "Expand-Archive -Path $zip -DestinationPath $dst -Force;" ^
-  "$installer = Get-ChildItem -Path $dst -Recurse -Filter install.ps1 | Select-Object -First 1;" ^
-  "if (-not $installer) { throw 'install.ps1 not found in the downloaded archive' };" ^
-  "Set-Location $installer.DirectoryName;" ^
-  "& $installer.FullName"
+  "$installer = Join-Path $dst 'Nsabag-claude-scanner-compatibility-7pah21\windows-bridge\install.ps1';" ^
+  "if (-not (Test-Path $installer)) { throw ('install.ps1 not found at ' + $installer) };" ^
+  "Set-Location (Split-Path $installer);" ^
+  "& $installer"
 
 echo.
 if %errorlevel% neq 0 (

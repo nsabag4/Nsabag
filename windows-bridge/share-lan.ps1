@@ -5,8 +5,9 @@
 # this machine to the network and opens the Windows Firewall for it, so any
 # office computer can scan from a browser at  http://<this-pc>:8090
 #
-#   .\share-lan.ps1            enable sharing (ports 8090 + 8080)
-#   .\share-lan.ps1 -Disable   undo everything this script added
+#   .\share-lan.ps1                    enable sharing (AirSane, port 8090)
+#   .\share-lan.ps1 -Ports 8090,8080   also share scanservjs (opt-in)
+#   .\share-lan.ps1 -Disable           undo everything this script added
 #
 # Notes:
 #  * The firewall rules are limited to the Domain and Private profiles -
@@ -15,10 +16,14 @@
 #  * Uses "netsh interface portproxy" pointed at 127.0.0.1, which reaches the
 #    WSL2 localhost relay, so it keeps working when the WSL address changes.
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [switch]$Disable,
-    [int[]]$Ports = @(8090, 8080)
+    # Only the AirSane port by default; pass -Ports 8090,8080 to also expose
+    # scanservjs. 8080 is opt-in so a missing scanservjs never turns into an
+    # accidental LAN exposure of some unrelated local service on that port.
+    [ValidateScript({ $_ -ge 1 -and $_ -le 65535 })]
+    [int[]]$Ports = @(8090)
 )
 
 $ErrorActionPreference = "Stop"
@@ -33,12 +38,15 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 }
 
 function Remove-Sharing {
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param([int[]]$PortList)
     foreach ($port in $PortList) {
-        & netsh interface portproxy delete v4tov4 listenport=$port listenaddress=0.0.0.0 2>$null | Out-Null
-        Get-NetFirewallRule -DisplayName ("{0}-{1}" -f $RulePrefix, $port) -ErrorAction SilentlyContinue |
-            Remove-NetFirewallRule
-        Write-Host ("  [OK] Sharing removed for port " + $port)
+        if ($PSCmdlet.ShouldProcess("port $port", "Remove portproxy forwarding and firewall rule")) {
+            & netsh interface portproxy delete v4tov4 listenport=$port listenaddress=0.0.0.0 2>$null | Out-Null
+            Get-NetFirewallRule -DisplayName ("{0}-{1}" -f $RulePrefix, $port) -ErrorAction SilentlyContinue |
+                Remove-NetFirewallRule
+            Write-Host ("  [OK] Sharing removed for port " + $port)
+        }
     }
 }
 
@@ -55,6 +63,10 @@ Write-Host "מפעיל שיתוף של ממשק הסריקה לרשת המשרד
 Write-Host ""
 
 foreach ($port in $Ports) {
+    if (-not $PSCmdlet.ShouldProcess("port $port", "Add portproxy forwarding and firewall rule")) {
+        continue
+    }
+
     # Re-create idempotently: delete any stale entry first.
     & netsh interface portproxy delete v4tov4 listenport=$port listenaddress=0.0.0.0 2>$null | Out-Null
     & netsh interface portproxy add v4tov4 listenport=$port listenaddress=0.0.0.0 connectport=$port connectaddress=127.0.0.1 | Out-Null
@@ -63,13 +75,15 @@ foreach ($port in $Ports) {
         exit 1
     }
 
+    # Always drop and recreate the rule: a stale rule with the same name but
+    # wrong profile/port/action must never survive under this name.
     $ruleName = "{0}-{1}" -f $RulePrefix, $port
-    if (-not (Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue)) {
-        New-NetFirewallRule -DisplayName $ruleName `
-            -Description "Office scanner (Avision AV210C2) web/eSCL access from the LAN" `
-            -Direction Inbound -Protocol TCP -LocalPort $port `
-            -Action Allow -Profile Domain, Private | Out-Null
-    }
+    Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue |
+        Remove-NetFirewallRule
+    New-NetFirewallRule -DisplayName $ruleName `
+        -Description "Office scanner (Avision AV210C2) web/eSCL access from the LAN" `
+        -Direction Inbound -Protocol TCP -LocalPort $port `
+        -Action Allow -Profile Domain, Private | Out-Null
     Write-Host ("  [OK] Port " + $port + " is now shared (Domain/Private networks only)")
 }
 
@@ -78,12 +92,16 @@ Write-Host "Shared! Coworkers can now scan from any office computer at:"
 Write-Host "בוצע! עכשיו אפשר לסרוק מכל מחשב במשרד בכתובות:"
 Write-Host ""
 $hostName = [System.Net.Dns]::GetHostName()
-Write-Host ("    http://" + $hostName + ":8090        (AirSane web UI + eSCL)") -ForegroundColor Green
-Write-Host ("    http://" + $hostName + ":8080        (scanservjs UI, if installed)") -ForegroundColor Green
+foreach ($port in $Ports) {
+    $label = ""
+    if ($port -eq 8090) { $label = "        (AirSane web UI + eSCL)" }
+    if ($port -eq 8080) { $label = "        (scanservjs UI)" }
+    Write-Host ("    http://" + $hostName + ":" + $port + $label) -ForegroundColor Green
+}
 $addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
     Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.254.*" -and $_.InterfaceAlias -notlike "*WSL*" -and $_.InterfaceAlias -notlike "*vEthernet*" }
 foreach ($addr in $addresses) {
-    Write-Host ("    http://" + $addr.IPAddress + ":8090") -ForegroundColor Green
+    Write-Host ("    http://" + $addr.IPAddress + ":" + $Ports[0]) -ForegroundColor Green
 }
 Write-Host ""
 Write-Host "NAPS2 on other PCs: add an eSCL scanner with Manual IP = " -NoNewline
