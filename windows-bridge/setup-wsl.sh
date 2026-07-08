@@ -153,12 +153,25 @@ fi
 
 # ------------------------------------------------------------ build AirSane
 # No Ubuntu/Debian package exists for AirSane; source build is the documented path.
+# AirSane cannot handle SANE backends that report an unknown page height
+# (lines = -1), which the avision backend does for EVERY sheetfed ADF scan:
+# the encoders receive height -1 and abort with "libjpeg error: Maximum
+# supported image dimension is 65500 pixels" (observed on real AV210C2
+# hardware; verified against AirSane and sane-backends sources). The patch
+# below (also kept at windows-bridge/patches/airsane-unknown-height.patch)
+# falls back to the requested region height and pads/truncates the page.
+AIRSANE_PATCH_MARKER='airsane-unknown-height-patch v1'
+
 need_build=1
 if [ "$FORCE_REBUILD_AIRSANE" != "1" ]; then
     if command -v airsaned >/dev/null 2>&1 || [ -x /usr/local/bin/airsaned ]; then
         if systemctl list-unit-files 2>/dev/null | grep -q '^airsaned\.service'; then
-            log "AirSane already installed (binary + airsaned.service present) - skipping build. Set FORCE_REBUILD_AIRSANE=1 to rebuild."
-            need_build=0
+            if grep -q "$AIRSANE_PATCH_MARKER" "$AIRSANE_SRC/server/scanjob.cpp" 2>/dev/null; then
+                log "AirSane already installed and patched - skipping build. Set FORCE_REBUILD_AIRSANE=1 to rebuild."
+                need_build=0
+            else
+                log "AirSane is installed but missing the unknown-page-height patch - rebuilding."
+            fi
         fi
     fi
 fi
@@ -166,10 +179,114 @@ fi
 if [ "$need_build" = "1" ]; then
     log "Cloning/updating AirSane sources (git honors http_proxy/https_proxy)..."
     if [ -d "$AIRSANE_SRC/.git" ]; then
+        # Drop any previously applied local patch so pull can fast-forward.
+        git -C "$AIRSANE_SRC" checkout -- . 2>/dev/null || true
         git -C "$AIRSANE_SRC" pull --ff-only || warn "git pull failed; building the already-checked-out revision."
     else
         git clone "$AIRSANE_REPO" "$AIRSANE_SRC" || die "git clone of AirSane failed. Check network/proxy (export https_proxy=... and re-run)."
     fi
+
+    if ! grep -q "$AIRSANE_PATCH_MARKER" "$AIRSANE_SRC/server/scanjob.cpp"; then
+        log "Applying the unknown-page-height patch to AirSane..."
+        airsane_patch="$(mktemp)"
+        cat > "$airsane_patch" <<'AIRSANE_PATCH_EOF'
+diff --git a/server/scanjob.cpp b/server/scanjob.cpp
+index 7f74303..dde032b 100644
+--- a/server/scanjob.cpp
++++ b/server/scanjob.cpp
+@@ -693,6 +693,9 @@ ScanJob::Private::finishTransfer(std::ostream& os)
+ {
+   mLastActive = ::time(nullptr);
+   std::shared_ptr<ImageEncoder> pEncoder;
++  /* airsane-unknown-height-patch v1 */
++  int height = 0;             // image height, in lines, fed to the encoder
++  bool heightUnknown = false; // true if the backend reported lines < 0
+   if (isProcessing()) {
+     if (mDocumentFormat == HttpServer::MIME_TYPE_JPEG) {
+       auto jpegEncoder = new JpegEncoder;
+@@ -725,7 +728,18 @@ ScanJob::Private::finishTransfer(std::ostream& os)
+       pEncoder->setColorspace(ImageEncoder::Grayscale);
+     auto p = mpSession->parameters();
+     pEncoder->setWidth(p->pixels_per_line);
+-    pEncoder->setHeight(p->lines);
++    // Some backends (e.g., avision with sheetfed scanners) report
++    // lines < 0 because the page height is not known in advance.
++    // Fall back to the requested region height, which is already
++    // expressed in pixels at scan resolution.
++    height = p->lines;
++    heightUnknown = height < 0;
++    if (heightUnknown) {
++      height = static_cast<int>(::floor(mHeight_px + 0.5));
++      std::clog << "backend reports unknown page height, assuming " << height
++                << " lines" << std::endl;
++    }
++    pEncoder->setHeight(height);
+     pEncoder->setBitDepth(p->depth);
+     pEncoder->setDestination(&os);
+     if (!mColorScan && mDeviceOptions.synthesize_gray) {
+@@ -748,6 +762,7 @@ ScanJob::Private::finishTransfer(std::ostream& os)
+   }
+   while (isProcessing()) {
+     int linesWritten = 0;
++    int linesDiscarded = 0;
+     mLastActive = ::time(nullptr);
+     std::vector<char> buffer(mpSession->parameters()->bytes_per_line);
+     SANE_Status status = SANE_STATUS_GOOD;
+@@ -755,6 +770,12 @@ ScanJob::Private::finishTransfer(std::ostream& os)
+       status = mpSession->read(buffer).status();
+       mLastActive = ::time(nullptr);
+       if (status == SANE_STATUS_GOOD) {
++        if (heightUnknown && linesWritten >= height) {
++          // The backend delivers more lines than the assumed height;
++          // drain and discard them so the page ends cleanly at EOF.
++          ++linesDiscarded;
++          continue;
++        }
+         applyGamma(buffer);
+         if (!mColorScan && mDeviceOptions.synthesize_gray)
+           synthesizeGray(buffer);
+@@ -772,6 +793,31 @@ ScanJob::Private::finishTransfer(std::ostream& os)
+       }
+     }
+     std::clog << "lines written: " << linesWritten << std::endl;
++    if (linesDiscarded > 0)
++      std::clog << "lines discarded: " << linesDiscarded << std::endl;
++    if (heightUnknown && isProcessing() && status == SANE_STATUS_EOF &&
++        linesWritten > 0 && linesWritten < height) {
++      // The page ended before the assumed height was reached; pad the
++      // remainder with white lines so the encoder receives exactly the
++      // number of lines it was configured for. The encoders are fed
++      // 8 or 16 bit grayscale or RGB data, where all bits set means white.
++      std::clog << "padding " << (height - linesWritten)
++                << " missing lines with white" << std::endl;
++      buffer.assign(buffer.size(), static_cast<char>(0xFF));
++      try {
++        while (os && linesWritten < height) {
++          pEncoder->writeLine(buffer.data());
++          ++linesWritten;
++        }
++        if (!os.flush())
++          throw std::runtime_error("Could not send data, state: " + describeStreamState(os));
++      } catch (const std::runtime_error& e) {
++        std::cerr << e.what() << ", aborting" << std::endl;
++        mState = aborted;
++        mStateReason = PWG_ERRORS_DETECTED;
++        closeSession();
++      }
++    }
+     if (isProcessing()) {
+       ++mImagesCompleted;
+       std::clog << "images completed: " << mImagesCompleted << std::endl;
+
+AIRSANE_PATCH_EOF
+        if git -C "$AIRSANE_SRC" apply "$airsane_patch"; then
+            log "Patch applied."
+        else
+            warn "Patch did not apply (upstream may have changed or fixed it); building unpatched sources."
+        fi
+        rm -f "$airsane_patch"
+    fi
+
     mkdir -p "$AIRSANE_BUILD"
     log "Building AirSane (cmake + make)..."
     ( cd "$AIRSANE_BUILD" \
