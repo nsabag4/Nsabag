@@ -115,7 +115,26 @@ if ($LASTEXITCODE -ne 0) {
     Write-Log ("WARNING: could not start WSL distro '" + $DistroName + "' (exit " + $LASTEXITCODE + "). Will try to attach anyway.")
 }
 
+function Ensure-DistroKeepAlive {
+    # WSL terminates the distro (and airsaned with it) shortly after the last
+    # client process exits. Pin the distro with a hidden 'sleep infinity'
+    # process and make sure airsaned is running. Idempotent: skips if the
+    # keep-alive marker process already exists inside the distro.
+    & wsl.exe -d $DistroName -u root -e pgrep -f "av210-keepalive" *> $null
+    if ($LASTEXITCODE -eq 0) {
+        return
+    }
+    Write-Log "Starting WSL keep-alive process (pins the distro so airsaned stays up)."
+    Start-Process -FilePath "wsl.exe" -WindowStyle Hidden -ArgumentList @(
+        "-d", $DistroName, "-u", "root", "--",
+        "bash", "-c", "systemctl start airsaned 2>/dev/null; exec -a av210-keepalive sleep infinity"
+    )
+}
+
+Ensure-DistroKeepAlive
+
 while ($true) {
+    Ensure-DistroKeepAlive
     $busid = Get-ScannerBusId -Usbipd $usbipd
     if ($null -eq $busid) {
         $busid = Get-CachedBusId

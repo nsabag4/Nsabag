@@ -200,7 +200,21 @@ fi
 systemctl daemon-reload
 systemctl enable --now avahi-daemon >/dev/null 2>&1 || warn "avahi-daemon enable/start failed (mDNS discovery is best-effort under WSL anyway)."
 if systemctl list-unit-files 2>/dev/null | grep -q '^airsaned\.service'; then
-    systemctl enable airsaned  >/dev/null 2>&1 || warn "systemctl enable airsaned failed."
+    systemctl enable airsaned >/dev/null 2>&1 || true
+    # Verify the enable actually took (observed failing silently on a fresh
+    # Ubuntu-24.04 WSL install); fall back to creating the wants-symlink.
+    if [ "$(systemctl is-enabled airsaned 2>/dev/null)" != "enabled" ]; then
+        unit_path="$(systemctl show -p FragmentPath --value airsaned 2>/dev/null)"
+        [ -n "$unit_path" ] || unit_path=/usr/lib/systemd/system/airsaned.service
+        mkdir -p /etc/systemd/system/multi-user.target.wants
+        ln -sf "$unit_path" /etc/systemd/system/multi-user.target.wants/airsaned.service
+        systemctl daemon-reload
+        if [ "$(systemctl is-enabled airsaned 2>/dev/null)" = "enabled" ]; then
+            log "airsaned enabled via manual wants-symlink ($unit_path)."
+        else
+            warn "could not enable airsaned for autostart; it will need 'systemctl start airsaned' after each WSL restart."
+        fi
+    fi
     systemctl restart airsaned || warn "airsaned failed to start; check: journalctl -u airsaned -n 50"
     log "airsaned service enabled and (re)started on port 8090."
 else
