@@ -76,6 +76,7 @@ av210 scan -o document.pdf --resolution 300 --mode color --all-pages
 | [docs/TROUBLESHOOTING.he.md](docs/TROUBLESHOOTING.he.md) | טבלת תקלות ופתרונות + איך אוספים לוגים (עברית) |
 | [docs/NAPS2.he.md](docs/NAPS2.he.md) | סריקה עם NAPS2, פרופיל מומלץ, ‏OCR בעברית (עברית) |
 | [docs/OFFICE-ONEPAGER.he.md](docs/OFFICE-ONEPAGER.he.md) | דף אחד להדפסה ולתלייה ליד הסורק (עברית) |
+| [docs/SHARE-LAN.he.md](docs/SHARE-LAN.he.md) | שיתוף הסורק לכל מחשבי המשרד דרך הרשת (עברית) |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | ארכיטקטורה, אבטחה והסרה — לאיש ה-IT (אנגלית) |
 | `windows-bridge/README.md` | תיעוד טכני של סקריפטי ההתקנה (אנגלית) |
 | `userspace-driver/README.md` | תיעוד הדרייבר העצמאי (אנגלית) |

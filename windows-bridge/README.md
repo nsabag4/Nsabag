@@ -66,6 +66,7 @@ Windows side with **zero network configuration**.
 | `setup-wsl.sh` | Ubuntu in WSL (root) | apt-installs SANE + build deps (noninteractive), ensures `avision` is enabled in `/etc/sane.d/dll.conf`, writes udev rules for the AV210 family (PIDs 0a24/0a25/0a2f/0a3a/1a35, MODE 0666) plus the `setfacl` workaround for the saned-user Debian bug, builds + installs AirSane with its `airsaned` systemd service (port 8090), optionally installs scanservjs (port 8080). Exits 42 if it had to enable systemd (installer restarts WSL and re-runs). Idempotent. |
 | `attach-scanner.ps1` | Windows (scheduled task) | Finds the scanner's BUSID (cached fallback when unplugged) and keeps `usbipd attach --wsl --auto-attach --unplugged` running in a retry loop. Logs to `%ProgramData%\ScannerBridge\attach.log`. |
 | `uninstall.ps1` | Windows (admin) | Removes the scheduled task, detaches/unbinds the scanner from usbipd, deletes `%ProgramData%\ScannerBridge`. Leaves the WSL distro intact unless `-RemoveDistro` is passed. |
+| `share-lan.ps1` | Windows (admin, optional) | Exposes the scan web UI/eSCL to the office LAN: `netsh` portproxy (0.0.0.0 -> 127.0.0.1, which reaches the WSL2 localhost relay) plus firewall rules for ports 8090/8080, Domain/Private profiles only. Other PCs then scan at `http://<host>:8090` or add it in NAPS2 via Manual IP. `-Disable` reverts everything. Guide: `../docs/SHARE-LAN.he.md`. |
 
 ## Install
 
