@@ -197,6 +197,20 @@ else
     log "/etc/default/airsane already exists - leaving as is."
 fi
 
+# Cap the scan window height for Avision sheetfed scanners. The avision
+# backend reports an unbounded page height on the AV210 family; without a
+# limit the delivered image can exceed libjpeg's 65500-pixel maximum and
+# AirSane aborts the job at encode time with "libjpeg error: Maximum
+# supported image dimension" (observed on real AV210C2 hardware).
+mkdir -p /etc/airsane
+touch /etc/airsane/options.conf
+if ! grep -q '^device avision' /etc/airsane/options.conf 2>/dev/null; then
+    printf '\n# Avision sheetfed: cap page height at A4 so libjpeg can encode it.\ndevice avision.*\nbr-y 295\n' >> /etc/airsane/options.conf
+    log "Added avision br-y height cap to /etc/airsane/options.conf."
+else
+    log "/etc/airsane/options.conf already has an avision section - leaving as is."
+fi
+
 systemctl daemon-reload
 systemctl enable --now avahi-daemon >/dev/null 2>&1 || warn "avahi-daemon enable/start failed (mDNS discovery is best-effort under WSL anyway)."
 if systemctl list-unit-files 2>/dev/null | grep -q '^airsaned\.service'; then
