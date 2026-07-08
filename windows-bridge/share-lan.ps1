@@ -101,7 +101,9 @@ foreach ($port in $Ports) {
 $addresses = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
     Where-Object { $_.IPAddress -notlike "127.*" -and $_.IPAddress -notlike "169.254.*" -and $_.InterfaceAlias -notlike "*WSL*" -and $_.InterfaceAlias -notlike "*vEthernet*" }
 foreach ($addr in $addresses) {
-    Write-Host ("    http://" + $addr.IPAddress + ":" + $Ports[0]) -ForegroundColor Green
+    foreach ($port in $Ports) {
+        Write-Host ("    http://" + $addr.IPAddress + ":" + $port) -ForegroundColor Green
+    }
 }
 Write-Host ""
 Write-Host "NAPS2 on other PCs: add an eSCL scanner with Manual IP = " -NoNewline

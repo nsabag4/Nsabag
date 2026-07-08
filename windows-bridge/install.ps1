@@ -481,6 +481,16 @@ try {
     Write-Warn2 ("Verification step hit an error: " + $_.Exception.Message) "שלב האימות נתקל בשגיאה."
 }
 
+# ----------------------------------------------- desktop shortcut (nice-to-have)
+try {
+    $desktop = [Environment]::GetFolderPath("Desktop")
+    $shortcutPath = Join-Path $desktop "Office Scanner.url"
+    Set-Content -Path $shortcutPath -Value @("[InternetShortcut]", "URL=http://localhost:8090") -Encoding ASCII
+    Write-Ok "Desktop shortcut created: 'Office Scanner' (opens the scan page)" "קיצור דרך 'Office Scanner' נוצר על שולחן העבודה (פותח את דף הסריקה)"
+} catch {
+    Write-Warn2 ("Could not create the desktop shortcut: " + $_.Exception.Message) "יצירת קיצור הדרך על שולחן העבודה נכשלה (לא קריטי)."
+}
+
 # ------------------------------------------------------------------ summary
 Write-Host ""
 Write-Host "=========================================================" -ForegroundColor Green
