@@ -1,0 +1,7 @@
+# Machine-private memory layer (Sabag360 principle 2, layer 3) — never committed
+CLAUDE.local.md
+**/CLAUDE.local.md
+
+# Secrets
+.env
+**/.env
