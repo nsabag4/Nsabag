@@ -102,4 +102,10 @@
 
 ### מה בוצע
 
-נוצר הענף `claude/intake-monday-call-summary-session` מתוך main, ונכתבה התיקייה הזו (99-Intake/monday-call-summary-session/) עם כל תוכן השיחה.
+נוצר הענף `claude/intake-monday-call-summary-session` מתוך main, ונכתבה התיקייה הזו (99-Intake/monday-call-summary-session/) עם כל תוכן השיחה. נדחף לגיטהאב ונפתח PR טיוטה לצפייה: https://github.com/nsabag4/Nsabag/pull/8 (ללא מיזוג).
+
+### סוף השיחה — מצב סגירה
+
+- שני PRים בטיוטה, שניהם במעקב אוטומטי של הסשן: #4 (תוצרי Monday-Setup) ו-#8 (ה-Intake הזה). תגובות CodeRabbit בשניהם היו הודעות אוטומטיות בלבד ("דילוג על ביקורת — טיוטה") — לא נדרשה פעולה.
+- נקבעה בדיקה עצמית מתוזמנת (כל שעה) למעקב אחרי שני ה-PRים: trigger `trig_01WNA5u2guQ4kxvrm2wReG1R`.
+- הסשן ממתין לאישור נחי להתחיל את פרויקט 2 (Monday-Operations) ולתשובות על השאלות הפתוחות (קובץ 04).
