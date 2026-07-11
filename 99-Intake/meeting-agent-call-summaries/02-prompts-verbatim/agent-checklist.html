@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הצ'קליסט של הסוכן — סבג נדל"ן</title>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16324A; --ink-soft:#4A6178; --page:#F3F6F8; --card:#FFFFFF;
+    --line:#DCE4EA; --teal:#0F6E56; --teal-bg:#E1F5EE; --amber:#8A5A0B;
+    --amber-bg:#FBF1DC; --stamp:#1B4A7C; --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:'Heebo',-apple-system,'Segoe UI',sans-serif;
+    font-size:16px; line-height:1.65; padding:32px 16px 64px;
+  }
+  .wrap{max-width:680px; margin:0 auto;}
+  .hero{margin-bottom:28px;}
+  .kicker{
+    display:inline-block; font-size:12.5px; font-weight:500; letter-spacing:.04em;
+    color:var(--stamp); border:1.5px solid var(--stamp); border-radius:4px;
+    padding:1px 10px; transform:rotate(-2deg); margin-bottom:14px;
+  }
+  h1{
+    font-family:'Frank Ruhl Libre',serif; font-weight:700;
+    font-size:30px; line-height:1.25; margin-bottom:6px;
+  }
+  .sub{color:var(--ink-soft); font-size:15px; max-width:52ch;}
+  .progress-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 20px; margin:20px 0 26px; display:flex; align-items:center; gap:16px;
+  }
+  .bar{flex:1; height:10px; background:var(--page); border-radius:99px; overflow:hidden;}
+  .bar > div{height:100%; width:0%; background:var(--teal); border-radius:99px; transition:width .35s ease;}
+  .pct{font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:20px; min-width:88px; text-align:left; white-space:nowrap;}
+  .saved{font-size:12.5px; color:var(--ink-soft); opacity:0; transition:opacity .3s;}
+  .saved.show{opacity:1;}
+
+  .session{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    margin-bottom:18px; overflow:hidden; position:relative;
+  }
+  .session.done{border-color:#BFE3D6;}
+  .s-head{
+    display:flex; align-items:center; gap:14px; padding:16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .s-num{
+    font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:17px;
+    color:var(--stamp); border:1.5px solid var(--stamp); border-radius:6px;
+    width:38px; height:38px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .s-title{font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:19px; flex:1;}
+  .s-meta{display:flex; align-items:center; gap:10px;}
+  .chip{
+    font-size:12.5px; color:var(--ink-soft); background:var(--page);
+    border-radius:99px; padding:2px 11px; white-space:nowrap;
+  }
+  .count{font-size:13px; color:var(--ink-soft); min-width:44px; text-align:left;}
+  .stamp{
+    position:absolute; top:12px; left:16px; pointer-events:none;
+    font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:15px;
+    color:var(--stamp); border:2.5px solid var(--stamp); border-radius:5px;
+    padding:1px 12px; transform:rotate(-8deg) scale(0); opacity:.9;
+    transition:transform .25s cubic-bezier(.2,1.4,.4,1);
+  }
+  .session.done .stamp{transform:rotate(-8deg) scale(1);}
+  .session.done .s-head{background:#F7FBF9;}
+
+  .steps{padding:8px 12px 14px;}
+  .step{
+    display:flex; align-items:flex-start; gap:12px; padding:10px 10px;
+    border-radius:8px; cursor:pointer; transition:background .15s;
+  }
+  .step:hover{background:var(--page);}
+  .step input{position:absolute; opacity:0; width:0; height:0;}
+  .cbox{
+    width:22px; height:22px; border:1.8px solid #9FB0BE; border-radius:6px;
+    flex-shrink:0; margin-top:3px; display:flex; align-items:center; justify-content:center;
+    background:var(--card); transition:all .15s; color:transparent; font-size:14px; font-weight:700;
+  }
+  .step input:checked ~ .cbox{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .step input:focus-visible ~ .cbox{outline:2.5px solid var(--stamp); outline-offset:2px;}
+  .txt{flex:1;}
+  .step input:checked ~ .txt{color:var(--ink-soft); text-decoration:line-through; text-decoration-color:#B7C4CE;}
+  .step.verify{background:var(--teal-bg); border-inline-start:3px solid var(--teal); border-radius:0 8px 8px 0; margin:6px 0;}
+  .step.verify:hover{background:#D4EFE4;}
+  .step.verify .vtag{font-weight:700; color:var(--teal); font-size:13.5px; display:block;}
+  .step.next{background:var(--amber-bg); box-shadow:inset 0 0 0 1.5px #E3C387;}
+  .step.next:hover{background:#F6E7C8;}
+  .nexttag{
+    display:inline-block; font-size:12px; font-weight:700; color:var(--amber);
+    background:#F3DCA8; border-radius:99px; padding:0 9px; margin-inline-start:8px; vertical-align:2px;
+  }
+  code{
+    font-family:Consolas,'Courier New',monospace; font-size:14px;
+    background:var(--page); border:1px solid var(--line); border-radius:5px;
+    padding:1px 7px; direction:ltr; unicode-bidi:embed; white-space:nowrap;
+  }
+  .codewrap{
+    margin:4px 44px 12px 10px; background:#F0F4F7; border:1px solid var(--line);
+    border-radius:10px; overflow:hidden;
+  }
+  .codewrap pre{
+    padding:14px 16px; font-family:'Heebo',sans-serif; font-size:14.5px;
+    white-space:pre-wrap; color:var(--ink); line-height:1.7;
+  }
+  .copybtn{
+    display:block; width:100%; border:none; border-top:1px solid var(--line);
+    background:var(--card); color:var(--stamp); font-family:'Heebo',sans-serif;
+    font-size:13.5px; font-weight:500; padding:8px; cursor:pointer; transition:background .15s;
+  }
+  .copybtn:hover{background:var(--page);}
+  .part{font-size:13px; font-weight:700; color:var(--ink-soft); letter-spacing:.03em; padding:12px 10px 2px;}
+
+  .finale{
+    display:none; text-align:center; padding:34px 20px 10px;
+  }
+  .finale .bigstamp{
+    display:inline-block; font-family:'Frank Ruhl Libre',serif; font-weight:700; font-size:26px;
+    color:var(--teal); border:3px solid var(--teal); border-radius:8px;
+    padding:8px 26px; transform:rotate(-5deg);
+  }
+  .finale p{margin-top:16px; color:var(--ink-soft);}
+  body.alldone .finale{display:block;}
+
+  .foot{
+    margin-top:30px; padding-top:18px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .foot .stuck{font-size:13.5px; color:var(--ink-soft); max-width:46ch;}
+  .reset{
+    border:1px solid var(--line); background:var(--card); color:var(--ink-soft);
+    font-family:'Heebo',sans-serif; font-size:13px; border-radius:8px;
+    padding:6px 14px; cursor:pointer;
+  }
+  .reset:hover{border-color:#B9C6D0; color:var(--ink);}
+  .loading{text-align:center; color:var(--ink-soft); padding:40px 0;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+  @media (max-width:520px){
+    body{padding:20px 10px 48px;}
+    h1{font-size:25px;}
+    .s-head{flex-wrap:wrap;}
+    .codewrap{margin:4px 10px 12px 6px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <span class="kicker">מסמך עבודה · סבג נדל"ן</span>
+    <h1>הצ'קליסט של הסוכן</h1>
+    <p class="sub">מפגש אחד בכל פעם. כל סימון נשמר אוטומטית — אפשר לסגור ולחזור מתי שרוצים, ההתקדמות מחכה לך.</p>
+    <div class="progress-card">
+      <div class="bar"><div id="barfill"></div></div>
+      <div class="pct" id="pct">0 מתוך 0</div>
+      <div class="saved" id="saved">✓ נשמר</div>
+    </div>
+  </div>
+
+  <div id="app" class="loading">טוען את ההתקדמות שלך…</div>
+
+  <div class="finale">
+    <span class="bigstamp">המערכת באוויר ✓</span>
+    <p>כל שיחה מהרגע הזה מסתכמת לבד. עבודה יפה, נחי.</p>
+  </div>
+
+  <div class="foot">
+    <div class="stuck">נתקעת? כתוב לקלוד: "נתקעתי במפגש ___ שלב ___, זה מה שאני רואה: ___" וצרף צילום מסך.</div>
+    <button class="reset" id="resetbtn">איפוס התקדמות</button>
+  </div>
+</div>
+
+<script>
+const MSG_BUILD = `אתה הבנאי של "סוכן היומן" של סבג נדל"ן — הפרויקט של עו"ד נחי סבג.
+
+הרקע והמטרה: נחי מנהל ביום עשרות אינטראקציות עם לקוחות — שיחות טלפון שמוקלטות בסמסונג, והקלטות והודעות של לקוחות מווצאפ שהוא משתף לבוט הטלגרם הייעודי. בלי מערכת, סיכומים, החלטות והתחייבויות נשכחים. הסוכן שתבנה סוגר את הפער: קולט כל אינטראקציה משני הערוצים, מתמלל לעברית, מפיק סיכום עם "מה נקבע", ומחלץ משימות לביצוע.
+
+היעד הסופי, החשוב מכל: כל סיכום שיחה נוסף כפריט במחלקת "חדר מיון" במאנדיי של נחי — עם "מה נקבע" והסיכום המלא בעדכון הפריט — והמשימות שנגזרו נפתחות בלוח המשימות בקבוצת "נכנס מהסוכן". על כל קלט נחי מקבל אישור מיידי בטלגרם. שום קלט לא נעלם בשקט, לעולם.
+
+דרישה מחייבת: סיכום שמקורו בהקלטת שיחה לא נכתב למאנדיי אוטומטית — הוא נשלח אליי קודם בטלגרם כתצוגה מקדימה עם כפתורי "אשר" ו"דחה", ורק אישור שלי מעביר אותו לחדר מיון. מנגנון האישור מפורט במפרט (סעיף 7א).
+
+אופן העבודה:
+1. קרא את הקובץ meeting-agent-spec.md שנמצא בתיקייה הזו — זה המפרט המחייב והמפורט (v2.2).
+2. בנה לפי סדר הבנייה בסעיף 9: שלב אחרי שלב, עם בדיקה אמיתית מולי בכל שלב לפני שממשיכים.
+3. לפני כל כתיבה למאנדיי — שליפת לוחות ועמודות חיה. את לוח "חדר מיון" אתר לפי שמו ואשר מולי; לא נמצא — עצור ושאל.
+4. כל המפתחות בקובץ .env בלבד, ו-.env חייב להופיע ב-.gitignore.
+5. כל טקסט שמופנה אליי — בעברית. שאל אותי רק מה שחסר לך.`;
+
+const MSG_INBOX = `עדכן את INBOX_PATH בקובץ .env לנתיב הבא: [הדבק כאן את הנתיב שהעתקת מהסייר]
+לפי סעיף 3 במפרט — מהתיקייה הזו קוראים בלבד: אסור להזיז, לשנות או למחוק בה קבצים.
+אחרי העדכון, הפעל מחדש את הסוכן ותאשר לי שהמאזין על התיקייה עובד.`;
+
+const SECTIONS = [
+  { num:'0', title:'לפני שמתחילים', time:'5 דק׳ · במחשב', steps:[
+    {t:'פתח את השיחה שלנו בקלוד במחשב.'},
+    {t:'הורד את הקובץ <code>meeting-agent-spec</code> שמופיע בשיחה (לחיצה על הקובץ ← הורדה). הוא יישמר בתיקיית ההורדות — אל תזיז אותו עדיין.'},
+    {t:'מקש Windows ← הקלד <code>notepad</code> ← אנטר.'},
+    {t:'שמור קובץ ריק בשם <code>keys.txt</code> על שולחן העבודה. לכאן תעתיק כל מפתח בהמשך — והוא זמני: נמחק אותו בסוף.'},
+  ]},
+  { num:'1', title:'הבוט בטלגרם', time:'5 דק׳ · בטלפון', steps:[
+    {t:'ודא ש-<b>Telegram</b> מותקן אצלך. אין? חנות Play ← Telegram ← התקן ← הירשם עם המספר הרגיל שלך.'},
+    {t:'בחיפוש של טלגרם הקלד <b>@BotFather</b> (החשבון עם הווי הכחול) ← פתח ← לחץ Start.'},
+    {t:'שלח לו: <code>/newbot</code>'},
+    {t:'כשהוא שואל לשם (name): הקלד "הסוכן של נחי".'},
+    {t:'כשהוא מבקש שם משתמש (username, חייב להסתיים ב-bot): למשל <code>nahi_sabag_agent_bot</code>. תפוס? הוסף ספרה בסוף.'},
+    {t:'BotFather יחזיר הודעה עם <b>Token</b> — מחרוזת ארוכה עם נקודתיים באמצע ← העתק ל-<code>keys.txt</code> בשורה: <code>BOT_TOKEN=</code>'},
+    {t:'עכשיו המזהה האישי שלך: חפש בטלגרם <b>@userinfobot</b> ← Start ← הוא מחזיר Id מספרי ← העתק ל-keys.txt בשורה: <code>TELEGRAM_ID=</code>'},
+    {t:'פתח את הבוט שלך (דרך הקישור בהודעת BotFather) ← לחץ <b>Start</b> ← נעץ (Pin) את הצ׳אט בראש הרשימה. זו מעכשיו "הקבוצה עם הסוכן".'},
+    {v:'שלח לבוט "בדיקה". הוא עדיין לא עונה — וזה תקין: המוח שלו נבנה במפגש 3. ההודעה נשלחה? סיימת את המפגש.'},
+  ]},
+  { num:'2', title:'שני המפתחות הנותרים', time:'10 דק׳ · במחשב', steps:[
+    {t:'דפדפן ← <code>console.groq.com</code> ← הרשמה (אפשר בלחיצה עם חשבון גוגל).'},
+    {t:'API Keys ← Create API Key ← שם: <code>sabag-agent</code> ← <b>העתק מיד</b> ל-keys.txt (המפתח מוצג פעם אחת בלבד!).'},
+    {t:'מאנדיי בדפדפן ← תמונת הפרופיל ← <b>Developers</b> ← My access tokens ← Show ← העתק ל-keys.txt.'},
+    {v:'בקובץ keys.txt יש עכשיו 4 ערכים: BOT_TOKEN, TELEGRAM_ID, מפתח Groq, טוקן מאנדיי.'},
+  ]},
+  { num:'3', title:'הבנייה עם קלוד קוד', time:'30–60 דק׳ · במחשב', steps:[
+    {t:'סייר הקבצים ← כונן <code>C:</code> ← תיקיית <code>dev</code> ← קליק ימני ← חדש ← תיקייה ← שם: <code>meeting-agent</code>.'},
+    {t:'גרור את <code>meeting-agent-spec.md</code> מתיקיית ההורדות אל <code>C:\\dev\\meeting-agent</code>.'},
+    {t:'מקש Windows ← הקלד <code>cmd</code> ← אנטר.'},
+    {t:'בחלון השחור: <code>cd C:\\dev\\meeting-agent</code> ← אנטר.'},
+    {t:'הקלד <code>claude</code> ← אנטר. (כתוב שהפקודה לא מוכרת? עצור וכתוב לי בקלוד.)'},
+    {t:'הדבק לקלוד קוד את ההודעה הבאה, מילה במילה:', code:'MSG_BUILD'},
+    {t:'כשהוא מבקש מפתחות — העתק מ-keys.txt והדבק.'},
+    {t:'כשהוא מבקש אישורים (זהות הצ׳אט בטלגרם, לוח המשימות, הרצת פקודות והתקנות) — קרא ואשר.'},
+    {v:'הקלט הודעה קולית בצ׳אט של הבוט: "תזכורת — להתקשר מחר לבנק לגבי המשכנתא של משפחת לוי" ← תוך דקה מגיע אישור מהבוט + שורות חדשות במאנדיי.'},
+    {t:'עבד? <b>מחק עכשיו את keys.txt</b> משולחן העבודה — המפתחות כבר שמורים ב-.env.'},
+  ]},
+  { num:'4', title:'הקלטות שיחה אוטומטיות', time:'15 דק׳ · טלפון + מחשב', steps:[
+    {p:'בטלפון'},
+    {t:'הקבצים שלי ← אחסון פנימי ← <b>Recordings ← Call</b> ← ודא שיש שם הקלטות. (אין? חפש תיקייה בשם Call.)'},
+    {t:'חנות Play ← התקן את <b>Autosync for Google Drive</b> (של MetaCtrl).'},
+    {t:'פתח ← התחבר לחשבון הגוגל שלך ← אשר הרשאות.'},
+    {t:'צור זוג תיקיות: בדרייב — תיקייה חדשה <code>CallRecordings</code>; במכשיר — <code>Recordings/Call</code>.'},
+    {t:'שיטת סנכרון: <b>Upload only</b> — קריטי! (ככה שום דבר לא נמחק מהטלפון, לעולם.)'},
+    {t:'בהגדרות זוג התיקיות: הפעל <b>Instant upload</b>.'},
+    {t:'בהגדרות האפליקציה: אפשר סנכרון גם על <b>רשת סלולרית</b> (בטל "Wi-Fi בלבד").'},
+    {t:'הגדרות הטלפון ← אפליקציות ← Autosync ← סוללה ← <b>ללא הגבלה</b>.'},
+    {t:'בתוך האפליקציה: בצע את רכישת ה-<b>Pro</b> החד-פעמית (מסירה את מגבלת 10MB — שיחות ארוכות לא ידולגו).'},
+    {v:'שיחה מוקלטת קצרה ← נתק ← פתח את Google Drive בטלפון ← הקובץ הופיע ב-CallRecordings תוך דקות.'},
+    {p:'במחשב'},
+    {t:'אין Google Drive במחשב? חפש "Google Drive for desktop" ← הורד מהאתר של גוגל ← התקן ← התחבר לאותו חשבון.'},
+    {t:'סייר הקבצים ← Google Drive (בדרך כלל כונן <code>G:</code>) ← קליק ימני על <code>CallRecordings</code> ← סמן "זמין במצב לא מקוון" (Available offline).'},
+    {t:'היכנס לתיקייה ← לחץ על שורת הכתובת ← העתק את הנתיב המלא (Ctrl+C).'},
+    {t:'פתח שוב את קלוד קוד (<code>cmd</code> ← <code>cd C:\\dev\\meeting-agent</code> ← <code>claude</code>) והדבק:', code:'MSG_INBOX'},
+    {v:'הבדיקה הגדולה: שיחה מוקלטת אמיתית ("סיכמנו — פגישה ביום חמישי בעשר, ואני שולח טיוטה עד מחר") ← נתק ← תוך 2–5 דקות מגיעה בטלגרם בקשת אישור עם הסיכום ומה נקבע ← לחץ "✅ אשר ושלח למאנדיי" ← השורות נכנסות לחדר מיון וללוח המשימות. 🎉'},
+  ]},
+];
+
+const STORE_KEY = 'sabag_agent_checklist_v1';
+const CODE = { MSG_BUILD, MSG_INBOX };
+let state = { checked: {} };
+let totalSteps = 0;
+
+function build(){
+  const app = document.getElementById('app');
+  app.classList.remove('loading');
+  app.innerHTML = '';
+  SECTIONS.forEach((sec, si) => {
+    const card = document.createElement('div');
+    card.className = 'session';
+    card.id = 'sec' + si;
+    let stepsHtml = '';
+    sec.steps.forEach((st, i) => {
+      if (st.p){ stepsHtml += '<div class="part">' + st.p + '</div>'; return; }
+      const id = 's' + si + '_' + i;
+      totalSteps++;
+      const verify = !!st.v;
+      const text = verify ? '<span class="vtag">✓ בדיקת הצלחה</span>' + st.v : st.t;
+      stepsHtml += '<label class="step' + (verify ? ' verify' : '') + '" data-id="' + id + '">' +
+        '<input type="checkbox" data-id="' + id + '">' +
+        '<span class="cbox">✓</span><span class="txt">' + text + '</span></label>';
+      if (st.code){
+        stepsHtml += '<div class="codewrap"><pre>' + CODE[st.code] + '</pre>' +
+          '<button class="copybtn" data-code="' + st.code + '">📋 העתקת ההודעה</button></div>';
+      }
+    });
+    card.innerHTML =
+      '<div class="s-head"><div class="s-num">' + sec.num + '</div>' +
+      '<div class="s-title">' + sec.title + '</div>' +
+      '<div class="s-meta"><span class="chip">' + sec.time + '</span>' +
+      '<span class="count" id="count' + si + '"></span></div></div>' +
+      '<span class="stamp">אושר ✓</span>' +
+      '<div class="steps">' + stepsHtml + '</div>';
+    app.appendChild(card);
+  });
+
+  app.addEventListener('change', e => {
+    if (e.target.matches('input[type=checkbox]')){
+      state.checked[e.target.dataset.id] = e.target.checked;
+      if (!e.target.checked) delete state.checked[e.target.dataset.id];
+      updateUI();
+      save();
+    }
+  });
+  app.addEventListener('click', e => {
+    const btn = e.target.closest('.copybtn');
+    if (!btn) return;
+    copyText(CODE[btn.dataset.code], btn);
+  });
+  document.getElementById('resetbtn').addEventListener('click', async () => {
+    if (!confirm('לאפס את כל ההתקדמות ולהתחיל מההתחלה?')) return;
+    state = { checked: {} };
+    document.querySelectorAll('#app input[type=checkbox]').forEach(c => c.checked = false);
+    updateUI();
+    save();
+  });
+}
+
+function applyState(){
+  document.querySelectorAll('#app input[type=checkbox]').forEach(c => {
+    c.checked = !!state.checked[c.dataset.id];
+  });
+  updateUI();
+}
+
+function updateUI(){
+  let done = 0, nextFound = false;
+  document.querySelectorAll('.step').forEach(row => row.classList.remove('next'));
+  document.querySelectorAll('.nexttag').forEach(n => n.remove());
+  SECTIONS.forEach((sec, si) => {
+    let secTotal = 0, secDone = 0;
+    sec.steps.forEach((st, i) => {
+      if (st.p) return;
+      secTotal++;
+      const id = 's' + si + '_' + i;
+      if (state.checked[id]){ secDone++; done++; }
+      else if (!nextFound){
+        nextFound = true;
+        const row = document.querySelector('.step[data-id="' + id + '"]');
+        if (row){
+          row.classList.add('next');
+          const tag = document.createElement('span');
+          tag.className = 'nexttag';
+          tag.textContent = 'הצעד הבא';
+          row.querySelector('.txt').appendChild(tag);
+        }
+      }
+    });
+    const card = document.getElementById('sec' + si);
+    card.classList.toggle('done', secDone === secTotal);
+    document.getElementById('count' + si).textContent = secDone + '/' + secTotal;
+  });
+  const pct = totalSteps ? Math.round(done / totalSteps * 100) : 0;
+  document.getElementById('barfill').style.width = pct + '%';
+  document.getElementById('pct').textContent = done + ' מתוך ' + totalSteps;
+  document.body.classList.toggle('alldone', done === totalSteps && totalSteps > 0);
+}
+
+async function save(){
+  try{
+    let stored = false;
+    if (window.storage && window.storage.set){
+      const res = await window.storage.set(STORE_KEY, JSON.stringify(state));
+      stored = !!res;
+    } else {
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      stored = true;
+    }
+    if (stored){
+      const el = document.getElementById('saved');
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(() => el.classList.remove('show'), 1400);
+    }
+  }catch(err){ console.error('save failed', err); }
+}
+
+async function load(){
+  try{
+    let raw = null;
+    if (window.storage && window.storage.get){
+      const res = await window.storage.get(STORE_KEY);
+      raw = res && res.value;
+    } else {
+      raw = localStorage.getItem(STORE_KEY);
+    }
+    if (raw) state = JSON.parse(raw);
+    if (!state || typeof state !== 'object' || !state.checked) state = { checked: {} };
+  }catch(err){ state = { checked: {} }; }
+}
+
+function copyText(text, btn){
+  const ok = () => { btn.textContent = '✓ הועתק — עכשיו הדבק בקלוד קוד'; setTimeout(() => btn.textContent = '📋 העתקת ההודעה', 2200); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(ok).catch(() => fallbackCopy(text, ok));
+  } else fallbackCopy(text, ok);
+}
+function fallbackCopy(text, ok){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'absolute'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); ok(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+(async function init(){
+  await load();
+  build();
+  applyState();
+})();
+</script>
+</body>
+</html>
