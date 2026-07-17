@@ -1,0 +1,32 @@
+{
+  "monday": {
+    "name": "סבג מאנדיי",
+    "token_env": "BOT_TOKEN_MONDAY",
+    "cwd": "C:\\Users\\סבגנדלן",
+    "prompt": "monday.md"
+  },
+  "finance": {
+    "name": "סוכן פיננסי",
+    "token_env": "BOT_TOKEN_FINANCE",
+    "cwd": "C:\\Users\\סבגנדלן",
+    "prompt": "finance.md"
+  },
+  "summarizer": {
+    "name": "סוכן המסכם",
+    "token_env": "BOT_TOKEN_SUMMARIZER",
+    "cwd": "C:\\dev\\meeting-agent",
+    "prompt": "summarizer.md"
+  },
+  "timekeeper": {
+    "name": "שומר זמן",
+    "token_env": "BOT_TOKEN_TIMEKEEPER",
+    "cwd": "C:\\dev\\tizkoran",
+    "prompt": "timekeeper.md"
+  },
+  "invoices": {
+    "name": "סוכן חשבוניות",
+    "token_env": "BOT_TOKEN_INVOICES",
+    "cwd": "C:\\Sabag360-Framework\\07-Department-Agents\\Invoices-Agent",
+    "prompt": "invoices.md"
+  }
+}

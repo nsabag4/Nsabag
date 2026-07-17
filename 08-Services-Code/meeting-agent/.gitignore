@@ -1,0 +1,11 @@
+.env
+inbox/
+processed/
+failed/
+logs/
+tmp/
+state.json
+agent.lock
+keys.txt
+__pycache__/
+*.pyc
