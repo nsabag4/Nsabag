@@ -2,6 +2,59 @@
 CLAUDE.local.md
 **/CLAUDE.local.md
 
-# Secrets
+# Secrets — never commit real credentials
 .env
 **/.env
+*.token
+**/*.token
+*.key
+*.pem
+secrets.*
+**/secrets.*
+
+# Runtime state (may contain chat_id / live tokens)
+state.json
+**/state.json
+mirror_state.json
+**/mirror_state.json
+*.state
+**/*.state
+heartbeat.txt
+**/heartbeat.txt
+*.lock
+**/*.lock
+
+# Backups (may contain old secrets)
+*.bak
+*.bak-*
+**/*.bak
+**/*.bak-*
+
+# Logs
+*.log
+**/*.log
+logs/
+**/logs/
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+venv/
+**/venv/
+.venv/
+**/.venv/
+
+# Media / runtime working folders (voice recordings, uploads)
+*.m4a
+*.oga
+*.mp3
+*.wav
+inbox/
+**/inbox/
+processed/
+**/processed/
+failed/
+**/failed/
+tmp/
+**/tmp/

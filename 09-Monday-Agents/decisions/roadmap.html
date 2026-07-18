@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפת דרכים — מה נשאר | סבג נדל"ן</title>
+<style>
+  :root{
+    --ink:#12203a; --muted:#5a6a86; --line:#dde5f0; --bg:#f4f7fc; --card:#ffffff;
+    --blue:#1e56c8; --green:#0f8a4d; --amber:#b5710a; --red:#c0392b; --purple:#6b3fa0; --gray:#64748b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Assistant","Rubik",Arial,sans-serif;line-height:1.7;}
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+  header.top{background:linear-gradient(135deg,#0d1830,#1e3a6e);color:#fff;border-radius:20px;padding:28px 32px;box-shadow:0 14px 40px rgba(18,32,58,.2);}
+  header.top h1{margin:0 0 6px;font-size:27px;}
+  header.top .sub{opacity:.9;font-size:15px;}
+  header.top .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;}
+  header.top .meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);padding:4px 11px;border-radius:20px;font-size:12.5px;}
+
+  .tier{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px 22px 18px;margin:16px 0;box-shadow:0 2px 10px rgba(18,32,58,.04);}
+  .tier h2{font-size:18px;margin:16px 0 4px;display:flex;align-items:center;gap:9px;}
+  .tier .cap{font-size:13px;color:var(--muted);margin:0 0 10px;}
+  .band{height:5px;border-radius:6px;margin:0 -22px 4px;}
+  .b-done{background:var(--green);} .b-monday{background:var(--green);} .b-company{background:var(--purple);} .b-think{background:#c0392b;} .b-future{background:var(--gray);}
+
+  .item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);}
+  .item:last-child{border-bottom:none;}
+  .box{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:2px solid var(--line);margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;}
+  .box.done{background:var(--green);border-color:var(--green);color:#fff;}
+  .box.open{border-color:var(--muted);}
+  .item .txt{flex:1;}
+  .item .txt .t{font-weight:700;font-size:14.5px;}
+  .item .txt .d{font-size:13px;color:var(--muted);margin-top:2px;}
+  .tag{display:inline-block;font-size:11px;font-weight:700;border-radius:20px;padding:1px 9px;margin-inline-start:6px;}
+  .tag.now{background:#e7f8ef;color:var(--green);}
+  .tag.next{background:#eaf1ff;color:var(--blue);}
+  .tag.later{background:#f1eafb;color:var(--purple);}
+  .tag.key{background:#fdecea;color:var(--red);}
+
+  .track{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;}
+  @media(max-width:640px){.track{grid-template-columns:1fr;}}
+  .tk{border-radius:12px;padding:12px 15px;font-size:13px;}
+  .tk.a{background:#eaf1ff;border:1px solid #c5d8f7;}
+  .tk.b{background:#fdecea;border:1px solid #f2c6ad;}
+  .tk .th{font-weight:800;font-size:14px;margin-bottom:4px;}
+  .tk.a .th{color:var(--blue);} .tk.b .th{color:var(--red);}
+  .firewall{text-align:center;font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:600;}
+
+  .footnote{color:var(--muted);font-size:12.5px;margin-top:8px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>מפת דרכים — מה נשאר לעשות</h1>
+    <div class="sub">קובץ מעקב חי · סבג נדל"ן · מסודר לפי מודל שתי הרמות</div>
+    <div class="meta">
+      <span>🗓️ 17.7.2026</span>
+      <span>🧠 תמיכת זיכרון חיצונית</span>
+      <span>📄 הכל על הנייר — שום שינוי חי</span>
+    </div>
+  </header>
+
+  <!-- DONE -->
+  <div class="tier">
+    <div class="band b-done"></div>
+    <h2>✅ כבר סגור</h2>
+    <p class="cap">מה שכבר עומד ומוכח.</p>
+    <div class="item"><div class="box done">✓</div><div class="txt"><div class="t">12 סוכני מאנדיי — בנויים ומוכחים</div><div class="d">כולל בידוד, פורמטי תקשורת, מילון אחיד, ובדיקות בפועל</div></div></div>
+    <div class="item"><div class="box done">✓</div><div class="txt"><div class="t">מפת ההתאמה המלאה — מודל שתי הרמות</div><div class="d">6 מקורות אוחדו; הסתירה הגדולה (C1) נפתרה</div></div></div>
+    <div class="item"><div class="box done">✓</div><div class="txt"><div class="t">החלטה: מנכ"ל מאנדיי רואה את הבורד הפיננסי, לא משנה</div><div class="d">כל שינוי כספי — רק דרך נחי</div></div></div>
+  </div>
+
+  <!-- MONDAY -->
+  <div class="tier">
+    <div class="band b-monday"></div>
+    <h2>🟩 רמת מאנדיי — נשאר</h2>
+    <p class="cap">מה שאפשר לסגור עכשיו. הכל פשוט עם ברירת מחדל.</p>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">לסגור 7 החלטות מאנדיי <span class="tag now">עכשיו</span></div><div class="d">נעילת 12 הסוכנים · זיכרון · זמני דוח · משימה תקועה · הרשאות כתיבה · העברת משימות</div></div></div>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">היומן / שכבת הזמן <span class="tag next">הבא בתור</span> <span class="tag key">ביקשת</span></div><div class="d">עמודות תאריך בכל בורד (התחלה ▶️ / יעד 📅 / משך ⏱️) · דשבורד יומן ב-3 רמות: מחלקה → מנכ"ל מאנדיי → נחי פרטי שרואה הכל 24 שעות · תזמון יומי ע"י הסוכן הראשי</div></div></div>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">לנטרל את 2 הפרויקטים הזומבים</div><div class="d">"עוזר אישי" ו"זלמן ארן 1" — להחליף בטקסט נעילת-ארכיון, לא למחוק</div></div></div>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">סוכן הבנייה (builder)</div><div class="d">בונה בורדים ועמודות תחת בקרה — נפרד מהמנכ"ל שרק מפקד</div></div></div>
+  </div>
+
+  <!-- COMPANY -->
+  <div class="tier">
+    <div class="band b-company"></div>
+    <h2>🟪 רמת החברה — עוד לא בנוי</h2>
+    <p class="cap">השכבה שמעל מאנדיי. כאן חיות החלטות הכסף האמיתיות.</p>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">מנכ"ל החברה <span class="tag later">שלב הבא</span></div><div class="d">מהמסמכים הקנוניים (SPEC + SYSTEM-PROMPT) + זיכרון 3 שכבות</div></div></div>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">סמנכ"ל הכספים של החברה + החלטות הכסף</div><div class="d">כרית ביטחון · ספי אישור להוצאות · ראיית בנק אמיתי · תזרים החברה</div></div></div>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">זרועות עתידיות</div><div class="d">מייל · שיחות (תמלול + סיכום + משימות מהשיחה) · איסוף חשבוניות</div></div></div>
+  </div>
+
+  <!-- THINKING -->
+  <div class="tier">
+    <div class="band b-think"></div>
+    <h2>🧠 שכבת החשיבה — חוצה את כל הרמות</h2>
+    <p class="cap">מנוע ההחלטות. זה שיאפשר החלטות אמיתיות (להיכנס להשקעה וכו׳).</p>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">מנוע החלטות + מסלול כפול <span class="tag key">ביקשת</span></div><div class="d">שני המסלולים רצים במקביל — אבל רק אחד עורך עובדות:</div></div></div>
+    <div class="track">
+      <div class="tk a"><div class="th">מסלול א׳ — עובדה קרה</div>נתונים, לוגיקה, מספרים, מקורות. בלתי-משוחד. אי אפשר לערוך אותו מרגש. זה מה שקובע את התמונה.</div>
+      <div class="tk b"><div class="th">מסלול ב׳ — המקור הרגשי</div>הדחף, הרצון, האינטואיציה. מותר לו להניע ולהאיץ — אבל אסור לו להעלים נתון או לעגל פינה. זו סיבה מס' 1 לקריסה כשהוא שולט.</div>
+    </div>
+    <div class="firewall">🔥 חומת אש: הרגש מניע את ההחלטה — לעולם לא עורך את העובדות.</div>
+  </div>
+
+  <!-- FUTURE -->
+  <div class="tier">
+    <div class="band b-future"></div>
+    <h2>🔮 עתיד</h2>
+    <div class="item"><div class="box open"></div><div class="txt"><div class="t">הוספת עובדים אנושיים למערך</div><div class="d">כשהמערכת בשלה, בני אדם נכנסים לצד הסוכנים תחת אותו מבנה</div></div></div>
+  </div>
+
+  <p class="footnote">מפת דרכים · 17.7.2026 · חוזרים ומעדכנים ככל שסוגרים · הכל על הנייר עד להוראת "תטמיע"</p>
+
+</div>
+</body>
+</html>

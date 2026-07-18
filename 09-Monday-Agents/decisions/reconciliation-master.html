@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפת התאמה — מאסטר סופי | סבג נדל"ן</title>
+<style>
+  :root{
+    --ink:#12203a; --muted:#5a6a86; --line:#dde5f0; --bg:#f4f7fc; --card:#ffffff;
+    --blue:#1e56c8; --blue-bg:#eaf1ff; --green:#0f8a4d; --green-bg:#e7f8ef;
+    --amber:#b5710a; --amber-bg:#fdf2dd; --red:#c0392b; --red-bg:#fdecea;
+    --purple:#6b3fa0; --purple-bg:#f1eafb; --gray:#64748b; --gray-bg:#eef2f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Assistant","Rubik",Arial,sans-serif;line-height:1.75;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 90px;}
+  header.top{background:linear-gradient(135deg,#0d1830,#1e3a6e 60%,#2a5bb0);color:#fff;border-radius:20px;padding:32px 34px;box-shadow:0 14px 40px rgba(18,32,58,.22);}
+  header.top .kicker{font-size:13px;letter-spacing:2px;opacity:.8;text-transform:uppercase;}
+  header.top h1{margin:6px 0 8px;font-size:30px;}
+  header.top .sub{opacity:.92;font-size:15.5px;max-width:760px;}
+  header.top .meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+  header.top .meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);padding:5px 12px;border-radius:20px;font-size:12.5px;}
+
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 22px;margin:20px 0;}
+  .toc h3{margin:0 0 8px;font-size:14px;color:var(--muted);}
+  .toc ol{margin:0;padding-inline-start:20px;columns:2;column-gap:30px;}
+  .toc li{margin:3px 0;font-size:13.5px;}
+  .toc a{color:var(--blue);text-decoration:none;}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin:22px 0;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 12px;text-align:center;}
+  .stat .n{font-size:27px;font-weight:800;color:var(--blue);line-height:1;}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:6px;}
+
+  section.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin:18px 0;box-shadow:0 2px 10px rgba(18,32,58,.04);}
+  h2.sec{font-size:20px;margin:0 0 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  h2.sec .num{background:var(--ink);color:#fff;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  h2.sec .tag{font-size:12px;background:var(--gray-bg);color:var(--gray);border-radius:8px;padding:2px 9px;font-weight:600;}
+  .lead{color:var(--muted);font-size:14.5px;margin:6px 0 16px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  th,td{text-align:right;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f7f9fd;color:#33425e;font-weight:700;font-size:12.5px;}
+  tr:last-child td{border-bottom:none;}
+  .mono{font-family:"Consolas","Courier New",monospace;font-size:12px;background:#f0f3f8;border:1px solid #e2e8f2;border-radius:5px;padding:1px 6px;direction:ltr;display:inline-block;}
+
+  .chip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;}
+  .c-blue{background:var(--blue-bg);color:var(--blue);} .c-green{background:var(--green-bg);color:var(--green);}
+  .c-amber{background:var(--amber-bg);color:var(--amber);} .c-red{background:var(--red-bg);color:var(--red);}
+  .c-purple{background:var(--purple-bg);color:var(--purple);} .c-gray{background:var(--gray-bg);color:var(--gray);}
+
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 2px;}
+  .decided{border:1px solid var(--green);border-right:4px solid var(--green);border-radius:10px;padding:9px 13px;margin:7px 0;background:#fbfffc;font-size:13.5px;}
+  .decided b{color:var(--green);}
+
+  .fork{border:2px solid var(--red);border-radius:14px;overflow:hidden;margin:14px 0;}
+  .fork .head{background:var(--red-bg);padding:14px 18px;}
+  .fork .head h3{margin:0;font-size:17px;color:var(--red);}
+  .fork .head p{margin:6px 0 0;font-size:13.5px;color:#7a2018;}
+  .fork .body{padding:16px 18px;}
+  .fork .row{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:13.5px;margin:7px 0;padding-bottom:7px;border-bottom:1px dashed var(--line);}
+  .fork .row:last-child{border-bottom:none;}
+  .fork .row b{color:#33425e;}
+  .opts{display:grid;gap:10px;margin-top:12px;}
+  .opt{border:1px solid var(--line);border-radius:11px;padding:12px 14px;background:#fbfdff;position:relative;}
+  .opt .t{font-weight:800;font-size:14px;margin-bottom:3px;}
+  .opt .d{font-size:13px;color:var(--muted);}
+  .opt.rec{border:2px solid var(--green);background:#f4fdf7;}
+  .opt.rec::after{content:"מומלץ";position:absolute;left:12px;top:12px;background:var(--green);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;}
+  .opt.a .t{color:var(--blue);} .opt.b .t{color:var(--green);} .opt.c .t{color:var(--purple);}
+
+  .conflict{border:1px solid var(--line);border-right:5px solid var(--gray);border-radius:12px;padding:13px 16px;margin:11px 0;background:#fcfdff;}
+  .conflict.red{border-right-color:var(--red);} .conflict.amber{border-right-color:var(--amber);} .conflict.green{border-right-color:var(--green);}
+  .conflict h4{margin:0 0 5px;font-size:15px;}
+  .conflict p{margin:4px 0;font-size:13.5px;}
+  .conflict .rec{margin-top:8px;padding:9px 12px;background:#f2f9f4;border-radius:9px;font-size:13.5px;}
+  .conflict .rec b{color:var(--green);}
+
+  ol.decisions{counter-reset:d;list-style:none;padding:0;margin:8px 0 0;}
+  ol.decisions li{counter-increment:d;position:relative;padding:13px 46px 13px 14px;border:1px solid var(--line);border-radius:11px;margin:9px 0;font-size:14px;background:#fff;}
+  ol.decisions li.hot{border:2px solid var(--red);background:#fffdfd;}
+  ol.decisions li::before{content:counter(d);position:absolute;right:12px;top:12px;width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+  ol.decisions li.hot::before{background:var(--red);}
+  ol.decisions li .src{display:block;font-size:12px;color:var(--muted);margin-top:3px;}
+  ol.decisions li .def{display:block;font-size:12.5px;color:var(--green);margin-top:4px;font-weight:600;}
+
+  .next{background:linear-gradient(135deg,#0f8a4d,#0c6f3e);color:#fff;border-radius:16px;padding:24px 28px;margin-top:22px;}
+  .next h2{margin:0 0 8px;font-size:21px;color:#fff;}
+  .next p{margin:6px 0;font-size:15px;opacity:.96;}
+  .next .do{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:11px;padding:14px 16px;margin-top:12px;font-size:15.5px;font-weight:600;}
+  .footnote{color:var(--muted);font-size:12.5px;margin-top:8px;}
+  .divider{height:1px;background:var(--line);margin:6px 0 2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">Sabag360 · Reconciliation Master</div>
+    <h1>מפת התאמה — מאסטר סופי</h1>
+    <div class="sub">איחוד מלא של כל ששת המקורות למערכת המנכ"ל והסוכנים. הסט נסגר. זו התמונה המלאה: מה הוכרע, מה טיוטה, מה סותר — ומה רק אתה יכול להכריע.</div>
+    <div class="meta">
+      <span>🗓️ 17.7.2026</span>
+      <span>📚 6 גופי-מקור מוחזקים במלואם</span>
+      <span>🔒 בלי עיגול פינות</span>
+      <span>✅ 12 סוכנים חיים ומוכחים</span>
+    </div>
+  </header>
+
+  <div class="toc">
+    <h3>תוכן</h3>
+    <ol>
+      <li><a href="#p1">התמונה — מה יש לנו</a></li>
+      <li><a href="#p2">מה הוכרע — החוקה היציבה</a></li>
+      <li><a href="#p3">מה טיוטה — מעוצב, ממתין לאישורך</a></li>
+      <li><a href="#p4">הסתירות — 6, עם המלצה לכל אחת</a></li>
+      <li><a href="#p5">ההחלטות שרק אתה מכריע</a></li>
+      <li><a href="#p6">הפעולה הבאה — אחת</a></li>
+    </ol>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">6</div><div class="l">גופי-מקור</div></div>
+    <div class="stat"><div class="n">12</div><div class="l">סוכנים חיים</div></div>
+    <div class="stat"><div class="n">~40</div><div class="l">עקרונות הוכרעו</div></div>
+    <div class="stat"><div class="n">4</div><div class="l">גושי טיוטה</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">סתירות (5 קלות, 1 חדה)</div></div>
+    <div class="stat"><div class="n">11</div><div class="l">החלטות שלך</div></div>
+  </div>
+
+  <!-- P1 -->
+  <section class="card" id="p1">
+    <h2 class="sec"><span class="num">1</span> התמונה — מה יש לנו <span class="tag">מצב המערכת</span></h2>
+    <p class="lead">שורה תחתונה: <b>המערכת התפעולית כבר חיה ומוכחת. פרופיל המנכ"ל הקנוני מעוצב ובשל — אך עדיין לא הוטמע כשדרוג חי.</b> הפער בין השניים הוא כל מה שנשאר להכריע.</p>
+    <table>
+      <tr><th>מקור</th><th>תפקיד</th><th>גרסה</th><th>מעמד</th></tr>
+      <tr><td><b>המערכת החיה המותקנת</b></td><td>12 סוכנים + ספר ארגון + זיכרון + זרעים + 5 HTML — עובד באפליקציה</td><td>מותקן ומוכח</td><td><span class="chip c-green">מקור אמת חי</span></td></tr>
+      <tr><td><b>SPEC קנוני</b></td><td>מסמך היסוד של המנכ"ל — ה"מה" (21 סעיפים)</td><td>v0.2</td><td><span class="chip c-purple">קנוני — ליישום</span></td></tr>
+      <tr><td><b>SYSTEM-PROMPT קנוני</b></td><td>הוראות ההפעלה — ה"איך" (22 סעיפים + 15 משתנים)</td><td>v0.2</td><td><span class="chip c-purple">קנוני — ליישום</span></td></tr>
+      <tr><td>Operating Architecture V2</td><td>6 שכבות, Board Registry, סוכן-בנאי מול סוכן-מנכ"ל</td><td>מודבק</td><td><span class="chip c-blue">ארכיטקטורת יעד</span></td></tr>
+      <tr><td>פרומפט סוכן בנייה V2</td><td>הבנאי המבוקר של מאנדיי</td><td>מודבק</td><td><span class="chip c-blue">ארכיטקטורת יעד</span></td></tr>
+      <tr><td>PROFILE DRAFT</td><td>הטיוטה המוקדמת</td><td>v0.1</td><td><span class="chip c-gray">היסטוריה — נעקף</span></td></tr>
+    </table>
+    <p class="footnote">3 קובצי הזיכרון (<span class="mono">CEO_GLOBAL</span> / <span class="mono">SABAG360_COMPANY</span> / <span class="mono">CEO_OPERATIONS.local</span>) לא הועלו כקבצים נפרדים — תוכנם מוחזק דרך המאסטר. לא חוסם (ראה C4).</p>
+  </section>
+
+  <!-- P2 -->
+  <section class="card" id="p2">
+    <h2 class="sec"><span class="num">2</span> מה הוכרע — החוקה היציבה <span class="tag">לא במחלוקת</span></h2>
+    <p class="lead">כל אלה מסומנים "נקבע" בקנוני <u>וגם</u> חיים ומוכחים במערכת. אלה לא לדיון — זה הבסיס.</p>
+
+    <div class="pill-row"><span class="chip c-gray">סמכות ומבנה</span></div>
+    <div class="decided"><b>שרשרת סמכות:</b> נחי (בעלים) ← מנכ"ל AI (ניהול ובקרה) ← סוכני מחלקות (מומחיות) ← מבצעים (אחרי אישור). רק נחי עוקף סוכן.</div>
+    <div class="decided"><b>המנכ"ל מנהל, לא מבצע:</b> אינו נוגע בעצמו במאנדיי/כספים/משפט/פרסום. מפעיל את הסוכן ומאמת תוצאה. עיקרון-על.</div>
+    <div class="decided"><b>בידוד:</b> לכל סוכן רשימת מזהי-בורד סגורה. "המזהה קובע, לא השם". אין פעולה מחוץ לרשימה.</div>
+
+    <div class="pill-row"><span class="chip c-gray">אמת ומידע</span></div>
+    <div class="decided"><b>מקורות אמת + איסור הזיות:</b> 6–7 מקורות מדורגים. "אין להשלים מידע בניחוש". מידע חסר — אומרים "לא ידוע" ומבקשים בירור.</div>
+    <div class="decided"><b>סיווג מידע:</b> עובדה / הוראת בעלים / החלטה מאושרת / ניתוח / המלצה / חסר. ניתוח המנכ"ל לעולם לא מוצג כעובדה.</div>
+
+    <div class="pill-row"><span class="chip c-gray">כסף</span></div>
+    <div class="decided"><b>משמעת תזרים:</b> אין לבלבל ליד/עסקה/עמלה/כסף שנגבה. תחזית מתגלגלת 13 שבועות. תרחיש שמרני/סביר/אופטימי. סולם ודאות 🟢🟡🟠⚪. <span class="footnote">(הסוכן הפיננסי כבר חישב: מסמר חודשי 21,350 ₪, קו אדום 64,050 ₪.)</span></div>
+    <div class="decided"><b>כלל הברזל:</b> אין לאשר התחייבות מהותית חדשה כשהתחזית השמרנית לא מכסה התחייבויות + כרית ביטחון — אלא עם מקור מימון ואישור נחי.</div>
+
+    <div class="pill-row"><span class="chip c-gray">עבודה ודיווח</span></div>
+    <div class="decided"><b>סגירת מעגל:</b> משימה לא נסגרת ב"בוצע" — רק אחרי אימות תוצאה, עדכון מערכת ובדיקה שאין תלות פתוחה.</div>
+    <div class="decided"><b>דיווח:</b> התראה מיידית + דוח יומי (שורה תחתונה 🟢🟡🔴 + 3 נושאים + החלטות ממתינות) + דוח שבועי מלא. כל מספר עם מקור וזמן.</div>
+    <div class="decided"><b>פורמטי תקשורת:</b> 🟦 הוראת ביצוע · 🟩 דיווח · 🟥 סירוב מחוץ-לתחום · 🟨 תיאום · 🟪 סירוב-נעילה. מותקנים.</div>
+    <div class="decided"><b>המילון האחיד:</b> ליד ← מתעניין ← לקוח ← תיק לקוח ← תיקים. "פרויקט" שמור לנדל"ן בלבד.</div>
+    <div class="decided"><b>סתירה:</b> המנכ"ל לא דורס בשקט — מציג נתון/מקור/זמן/סתירה/השפעה/חלופות וממתין להכרעה. <b>אירוע אמיתי:</b> זוהו 2 כפילויות בבורד המשפטי, נמחקו רק אחרי אישורך.</div>
+  </section>
+
+  <!-- P3 -->
+  <section class="card" id="p3">
+    <h2 class="sec"><span class="num">3</span> מה טיוטה — מעוצב, ממתין לאישורך <span class="tag">בשל אך לא מאושר</span></h2>
+    <p class="lead">ארבעה גושים מוכנים על הנייר, טרם אושרו כמדיניות מחייבת.</p>
+    <table>
+      <tr><th>גוש</th><th>מה יש</th><th>מקור</th></tr>
+      <tr><td><b>8 מצבי פעולה</b></td><td>שגרה יומית · משימה תקועה · סכנה תזרימית · סתירה/כפילות · מחלוקת בין-מחלקתית · סיכון משפטי/כספי/תדמיתי · משבר · הזדמנות. לכל מצב: מפעיל, מידע נדרש, סוכנים, סמכות, מבצע, הוכחה.</td><td>SPEC §12</td></tr>
+      <tr><td><b>אבטחה וביקורת</b></td><td>הרשאות לפי תפקיד · אין טוקנים בפרומפט · תיעוד מי-ביקש-מי-אישר-מי-ביצע · מזהה אירוע יחיד למניעת כפל · אין מחיקה אוטומטית.</td><td>SPEC §18 · SP §19</td></tr>
+      <tr><td><b>שדרוג זיכרון המנכ"ל</b></td><td>מעבר ל-3 שכבות (<span class="mono">CEO_GLOBAL</span>/<span class="mono">COMPANY</span>/<span class="mono">OPERATIONS</span>) + סכמת רשומה בת 13 שדות.</td><td>SPEC §9 · SP §5</td></tr>
+      <tr><td><b>תבנית 15 המשתנים</b></td><td>החריצים למילוי כדי להפוך את הפרומפט הקנוני למופעל.</td><td>SP §22</td></tr>
+    </table>
+  </section>
+
+  <!-- P4 -->
+  <section class="card" id="p4">
+    <h2 class="sec"><span class="num">4</span> הסתירות — 6, עם המלצה לכל אחת <span class="tag">כאן הערך</span></h2>
+    <p class="lead">חמש קלות לסגירה, אחת חדה שחוסמת עיצוב שלם. ההמלצות שלי מסומנות כהמלצה — לא כעובדה, לא כהחלטה.</p>
+
+    <!-- C1 fork -->
+    <div class="fork">
+      <div class="head">
+        <h3>C1 · ההכרעה מספר 1 — נעילת הכספים: המנכ"ל בפנים או בחוץ?</h3>
+        <p>הפרומפט הקנוני (§13) מעצב מנכ"ל שקורא ומפעיל את סוכן הכספים. המערכת החיה נועלת את הכספים גם מפני המנכ"ל. אי אפשר ששניהם נכונים.</p>
+      </div>
+      <div class="body">
+        <div class="row"><b>החי:</b><span>הפיננסי (#10) נעול (<span class="mono">5989961</span>). מקבל הוראות מנחי בלבד. המנכ"ל לא קורא ולא מכליל בדוחות.</span></div>
+        <div class="row"><b>הקנוני §13:</b><span>"קרא יתרת מזומן... הפעל בנפרד את סוכן הכספים... השווה המלצות" — המנכ"ל קורא ומפקד.</span></div>
+        <div class="row"><b>המתח הפנימי:</b><span>הגדרתך "נעול = לא נראה לעובדים אחרים" ↔ הכלל שלך "נעולים מקבלים הוראות מנחי בלבד, לא מהמנכ"ל".</span></div>
+        <div class="opts">
+          <div class="opt a"><div class="t">א · המנכ"ל בחוץ (הכי מאובטח)</div><div class="d">הכספים נעולים גם מהמנכ"ל. נחי מזין ידנית. חיסרון: <b>הטראק הרגשי (נחי) הופך לצינור היחיד של נתוני כסף</b> — בדיוק כשל מס' 1 שאתה מנסה למנוע.</div></div>
+          <div class="opt b rec"><div class="t">ב · המנכ"ל רואה, לא משנה</div><div class="d">המנכ"ל <b>רואה</b> תזרים כדי לחשוף אמת ולהחליט; כל <b>שינוי כספי</b> עובר רק דרך נחי. שומר על "נעול = אסור לשנות בלי נחי", ובו-זמנית נותן לטראק העובדתי לחשוף מספרים. <b>ההמלצה שלי.</b></div></div>
+          <div class="opt c"><div class="t">ג · המנכ"ל CFO מלא</div><div class="d">"נעול" = מוסתר מעובדים בלבד. המנכ"ל מנהל כספים כמו CFO. הכי קרוב לחזון — אך דורש שתאשר שהמנכ"ל אינו "עובד אחר" ותסמוך עליו על ביצוע.</div></div>
+        </div>
+        <div class="row" style="margin-top:12px;border:none;"><b>למה ב׳:</b><span>אתה בעצמך הגדרת שהמקור הרגשי שמעלים נתונים ומעגל פינות הוא סיבה מס' 1 לקריסה. אפשרות א׳ מחזירה בדיוק את הכשל הזה — כי היא מונעת מהמנכ"ל (הטראק הקר) לראות אמת כספית באופן עצמאי. ב׳ נותנת שקיפות מלאה לחשיפת אמת, אך משאירה את יד-הביצוע נעולה אצלך.</span></div>
+        <div class="row" style="border:none;"><b>והאישי (#3)?</b><span>המלצה: הסוכן האישי נשאר <b>נעול לחלוטין תמיד</b> (גם רואה וגם מבצע רק אצלך) — הוא לא נדרש לחשיפת אמת ניהולית כמו הכספים.</span></div>
+      </div>
+    </div>
+
+    <div class="conflict amber"><h4><span class="chip c-amber">C2 · פער</span> מודל זיכרון</h4>
+      <p>11 סוכנים דו-שכבתיים (חי) · המנכ"ל 3 שכבות (קנוני).</p>
+      <div class="rec"><b>המלצה:</b> 11 הסוכנים נשארים דו-שכבתיים; רק המנכ"ל עולה ל-3 שכבות. שדרוג נקי, בלי לגעת במה שעובד.</div>
+    </div>
+    <div class="conflict amber"><h4><span class="chip c-amber">C3 · יעד עתידי</span> חיבורים (ChatGPT/Telegram/Claude Code)</h4>
+      <p>הקנוני מציב את ChatGPT+Telegram כערוץ נחי ואת Claude Code כבנאי טכני בלבד. עדיין לא מאושר.</p>
+      <div class="rec"><b>המלצה:</b> לדחות. זה שלב אחרי הטמעת הפרופיל. לא נוגעים ב-3 משתני החיבור עכשיו.</div>
+    </div>
+    <div class="conflict green"><h4><span class="chip c-green">C4 · נסגר</span> 3 קובצי זיכרון</h4>
+      <p>תוכנם מוחזק דרך המאסטר. לא הועלו כקבצים נפרדים.</p>
+      <div class="rec"><b>הכרעה:</b> לא חוסם. כשנבנה את שכבות הזיכרון בפועל — נחלץ אותן מהמאסטר ונאמת. סגור לעת עתה.</div>
+    </div>
+    <div class="conflict amber"><h4><span class="chip c-amber">C5 · פשוט לסגור</span> רשימת המחלקות</h4>
+      <p>הקנוני מתייחס לרשימה כ"פתוחה" · בפועל 12 סוכנים בנויים ומוכחים.</p>
+      <div class="rec"><b>המלצה:</b> לנעול על 12 כ"הוכרע". להזין ל-<span class="mono">{{DEPARTMENT_AGENT_IDS}}</span> ולהוריד מהפתוחות.</div>
+    </div>
+    <div class="conflict red"><h4><span class="chip c-red">C6 · מלכודת ידועה</span> אל תחזיר "מנכ"ל ממזג בעצמו"</h4>
+      <p>כלל מ-0.1 שהוחלף נכון ב-0.2. שובר את "המנכ"ל לא מבצע".</p>
+      <div class="rec"><b>הכרעה:</b> לא החלטה פתוחה — פשוט לא להכניס אותו לפרופיל. נסגר.</div>
+    </div>
+  </section>
+
+  <!-- P5 -->
+  <section class="card" id="p5">
+    <h2 class="sec"><span class="num">5</span> ההחלטות שרק אתה מכריע <span class="tag">11 — עם ברירות-מחדל מוצעות</span></h2>
+    <p class="lead">צירפתי לכל אחת <b>ברירת-מחדל מוצעת</b> כדי להקטין את עומס ההחלטה: תוכל פשוט לאשר "כן" או לתקן. זה כל מה שחוסם את הטמעת הפרופיל.</p>
+    <ol class="decisions">
+      <li class="hot"><b>נעילת הכספים: המנכ"ל בפנים או בחוץ?</b><span class="src">C1 · חוסם את כל פרק הכספים</span><span class="def">ברירת-מחדל מוצעת: אפשרות ב׳ (רואה, לא משנה). האישי נשאר נעול לחלוטין.</span></li>
+      <li>לנעול את רשימת 12 הסוכנים כ"הוכרע"?<span class="src">C5 · {{DEPARTMENT_AGENT_IDS}}</span><span class="def">ברירת-מחדל מוצעת: כן, נועלים על 12.</span></li>
+      <li>זיכרון: 11 דו-שכבתי, המנכ"ל 3 שכבות?<span class="src">C2</span><span class="def">ברירת-מחדל מוצעת: כן.</span></li>
+      <li>גובה כרית הביטחון הכספית<span class="src">§20.4 · {{LIQUIDITY_BUFFER}}</span><span class="def">ברירת-מחדל מוצעת: הקו האדום שכבר חושב — 64,050 ₪ (3 חודשי מסמר).</span></li>
+      <li>ספי סכום: תשלום · התחייבות · הנחה · חריגת תקציב<span class="src">§20.3 · {{APPROVAL_THRESHOLDS}}</span><span class="def">ברירת-מחדל מוצעת: כל סכום מעל חצי-מסמר (~10,000 ₪) דורש אישורך — עד שתכייל.</span></li>
+      <li>אילו התחייבויות משפטיות תמיד דורשות אישור<span class="src">§20.2</span><span class="def">ברירת-מחדל מוצעת: כל חתימה/שליחת מסמך/יצירת התחייבות — תמיד אתה.</span></li>
+      <li>זמני דוח יומי ושבועי<span class="src">§20.6 · {{DAILY/WEEKLY_REPORT_TIME}}</span><span class="def">ברירת-מחדל מוצעת: יומי 08:00, שבועי ראשון 09:00.</span></li>
+      <li>ספי זמן ל"משימה תקועה" בכל מחלקה<span class="src">§20.7</span><span class="def">ברירת-מחדל מוצעת: 3 ימי עסקים ללא תזוזה = תקוע (משפטי: 1 יום).</span></li>
+      <li>הרשאות כתיבה לכל מערכת ולכל סוכן<span class="src">§20.8 · {{MONDAY_BOARD_IDS}}</span><span class="def">ברירת-מחדל מוצעת: כפי שכבר מותקן במערכת החיה.</span></li>
+      <li>סמכות: לשנות עדיפויות / להעביר משימה בין אחראים — בלי אישור מוקדם?<span class="src">מ-PROFILE 0.1 §10</span><span class="def">ברירת-מחדל מוצעת: כן להעברת משימה (עם דיווח); לא לשינוי עדיפות ליבה בלי אישור.</span></li>
+      <li>מועד המעבר מבניית פרופיל ליישום טכנולוגי<span class="src">§20.9 · C3</span><span class="def">ברירת-מחדל מוצעת: אחרי שההחלטות 1–10 סגורות.</span></li>
+    </ol>
+  </section>
+
+  <!-- P6 -->
+  <div class="next" id="p6">
+    <h2>6 · הפעולה הבאה — אחת בלבד</h2>
+    <p>הסט סגור, התמונה מלאה. עשר מ-11 ההחלטות יש להן ברירת-מחדל שאפשר לאשר בגוש אחד. אבל <b>אחת חוסמת עיצוב שלם</b> ואי אפשר לתת לה ברירת-מחדל בלי אישורך המפורש — כי היא נוגעת ישירות בכשל מס' 1 שאתה מנסה למנוע.</p>
+    <div class="do">👈 הכרע רק את זה: <b>נעילת הכספים — א׳ / ב׳ / ג׳?</b> &nbsp;(המלצתי: ב׳ — המנכ"ל רואה תזרים לחשיפת אמת, אך כל שינוי כספי עובר רק דרכך.) &nbsp;ברגע שזה סגור — אאשר את שאר 10 ההחלטות כגוש, ונעבור מפרופיל להטמעה.</div>
+  </div>
+
+  <p class="footnote" style="text-align:center;margin-top:24px;">
+    מפת התאמה — מאסטר סופי · 17.7.2026 · מחליפה את גרסאות 1–3 · מחזיקה 6 גופי-מקור במלואם · המערכת החיה גוברת עד להכרעות
+  </p>
+
+</div>
+</body>
+</html>

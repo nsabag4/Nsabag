@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מפת התאמה — מודל שתי הרמות | סבג נדל"ן</title>
+<style>
+  :root{
+    --ink:#12203a; --muted:#5a6a86; --line:#dde5f0; --bg:#f4f7fc; --card:#ffffff;
+    --blue:#1e56c8; --blue-bg:#eaf1ff; --green:#0f8a4d; --green-bg:#e7f8ef;
+    --amber:#b5710a; --amber-bg:#fdf2dd; --red:#c0392b; --red-bg:#fdecea;
+    --purple:#6b3fa0; --purple-bg:#f1eafb; --gray:#64748b; --gray-bg:#eef2f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Assistant","Rubik",Arial,sans-serif;line-height:1.75;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 90px;}
+  header.top{background:linear-gradient(135deg,#0d1830,#1e3a6e 60%,#2a5bb0);color:#fff;border-radius:20px;padding:32px 34px;box-shadow:0 14px 40px rgba(18,32,58,.22);}
+  header.top .kicker{font-size:13px;letter-spacing:2px;opacity:.8;text-transform:uppercase;}
+  header.top h1{margin:6px 0 8px;font-size:29px;}
+  header.top .sub{opacity:.92;font-size:15.5px;max-width:780px;}
+  header.top .meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;}
+  header.top .meta span{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);padding:5px 12px;border-radius:20px;font-size:12.5px;}
+
+  .bigfix{background:#fff3ed;border:1px solid #f2c6ad;border-right:6px solid #d9622a;border-radius:14px;padding:18px 22px;margin:20px 0;}
+  .bigfix h2{margin:0 0 8px;font-size:18px;color:#c0501c;}
+  .bigfix p{margin:5px 0;font-size:14.5px;}
+
+  section.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin:18px 0;box-shadow:0 2px 10px rgba(18,32,58,.04);}
+  h2.sec{font-size:20px;margin:0 0 4px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  h2.sec .num{background:var(--ink);color:#fff;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  h2.sec .tag{font-size:12px;background:var(--gray-bg);color:var(--gray);border-radius:8px;padding:2px 9px;font-weight:600;}
+  .lead{color:var(--muted);font-size:14.5px;margin:6px 0 16px;}
+
+  /* hierarchy */
+  .tree{margin:8px 0 4px;}
+  .node{border-radius:12px;padding:12px 16px;margin:8px 0;font-size:14.5px;border:1px solid var(--line);}
+  .node .role{font-weight:800;font-size:15.5px;}
+  .node .desc{font-size:13px;color:var(--muted);margin-top:2px;}
+  .node .stat{float:left;font-size:11.5px;font-weight:700;border-radius:20px;padding:2px 10px;}
+  .lvl0{background:#12203a;color:#fff;border-color:#12203a;}
+  .lvl1{background:var(--purple-bg);border-color:#d9c7f0;margin-inline-start:26px;}
+  .lvl2{background:#fff;margin-inline-start:52px;}
+  .lvl3{background:var(--green-bg);border-color:#bfe6cf;margin-inline-start:52px;}
+  .lvl4{background:#f7f9fd;margin-inline-start:78px;}
+  .st-built{background:var(--green-bg);color:var(--green);}
+  .st-no{background:var(--red-bg);color:var(--red);}
+  .st-paper{background:var(--amber-bg);color:var(--amber);}
+  .connector{color:var(--muted);margin-inline-start:40px;font-size:13px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px;}
+  th,td{text-align:right;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:#f7f9fd;color:#33425e;font-weight:700;font-size:12.5px;}
+  tr:last-child td{border-bottom:none;}
+  .mono{font-family:"Consolas","Courier New",monospace;font-size:12px;background:#f0f3f8;border:1px solid #e2e8f2;border-radius:5px;padding:1px 6px;direction:ltr;display:inline-block;}
+  .chip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:20px;padding:2px 10px;white-space:nowrap;}
+  .c-blue{background:var(--blue-bg);color:var(--blue);} .c-green{background:var(--green-bg);color:var(--green);}
+  .c-amber{background:var(--amber-bg);color:var(--amber);} .c-red{background:var(--red-bg);color:var(--red);}
+  .c-purple{background:var(--purple-bg);color:var(--purple);} .c-gray{background:var(--gray-bg);color:var(--gray);}
+
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:720px){.twocol{grid-template-columns:1fr;}}
+  .col{border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .col .h{padding:12px 16px;font-weight:800;font-size:15px;color:#fff;}
+  .col.now .h{background:var(--green);}
+  .col.later .h{background:var(--purple);}
+  .col ul{list-style:none;margin:0;padding:8px 14px 14px;}
+  .col li{padding:8px 0;border-bottom:1px dashed var(--line);font-size:13.5px;}
+  .col li:last-child{border-bottom:none;}
+  .col li .d{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+  .done{color:var(--green);font-weight:700;font-size:12px;}
+
+  .conflict{border:1px solid var(--line);border-right:5px solid var(--gray);border-radius:12px;padding:13px 16px;margin:11px 0;background:#fcfdff;}
+  .conflict.green{border-right-color:var(--green);} .conflict.amber{border-right-color:var(--amber);} .conflict.red{border-right-color:var(--red);}
+  .conflict h4{margin:0 0 5px;font-size:15px;} .conflict p{margin:4px 0;font-size:13.5px;}
+
+  .next{background:linear-gradient(135deg,#0f8a4d,#0c6f3e);color:#fff;border-radius:16px;padding:24px 28px;margin-top:22px;}
+  .next h2{margin:0 0 8px;font-size:21px;color:#fff;} .next p{margin:6px 0;font-size:15px;opacity:.96;}
+  .next .do{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:11px;padding:14px 16px;margin-top:12px;font-size:15.5px;font-weight:600;}
+  .footnote{color:var(--muted);font-size:12.5px;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">Sabag360 · Two-Layer Model</div>
+    <h1>מפת התאמה — מודל שתי הרמות</h1>
+    <div class="sub">עדכון מבני גדול: מאנדיי היא מחלקה אחת בתוך החברה. יש מנכ"ל חברה מעל מנכ"ל מאנדיי, וסמנכ"ל כספים חברה נפרד מהסוכן הפיננסי של מאנדיי. הסתירה הכי גדולה מתפוגגת.</div>
+    <div class="meta">
+      <span>🗓️ 17.7.2026</span>
+      <span>🔧 תיקון: מאנדיי = מחלקה, לא החברה</span>
+      <span>✅ C1 מתפוגגת</span>
+    </div>
+  </header>
+
+  <div class="bigfix">
+    <h2>🔧 התיקון הגדול — מה נחי חידד</h2>
+    <p><b>מאנדיי היא מחלקה אחת בתוך החברה.</b> כל מה שבנינו (12 סוכנים + מנכ"ל מאנדיי) = מחלקת מאנדיי בלבד.</p>
+    <p><b>הסוכן הפיננסי שבנינו הוא "פיננסי מאנדיי"</b> — מנהל את הבורד הפיננסי בתוך מאנדיי. הוא אינו סמנכ"ל הכספים של החברה.</p>
+    <p><b>המסמכים הקנוניים ("Sabag360 AI CEO") מתארים את מנכ"ל החברה</b> — רמה מעל מאנדיי. לא את מנכ"ל מאנדיי שהותקן.</p>
+  </div>
+
+  <!-- 1 hierarchy -->
+  <section class="card">
+    <h2 class="sec"><span class="num">1</span> הארכיטקטורה המתוקנת <span class="tag">מי מעל מי</span></h2>
+    <div class="tree">
+      <div class="node lvl0"><span class="stat st-built">קיים</span><span class="role">👑 נחי סבג</span><div class="desc">בעלים וסמכות עליונה</div></div>
+      <div class="connector">▼</div>
+      <div class="node lvl1"><span class="stat st-no">לא בנוי</span><span class="role">🏛️ מנכ"ל החברה — Sabag360 AI CEO</span><div class="desc">המוח של כל העסק. זה מה שהמסמכים הקנוניים מתארים. מנהל את כל השכבות מתחתיו.</div></div>
+      <div class="node lvl2"><span class="stat st-no">לא בנוי</span><span class="role">💰 סמנכ"ל כספים של החברה</span><div class="desc">כסף אמיתי, יתרות בנק, תזרים החברה, כרית ביטחון, ספי אישור להוצאות אמיתיות.</div></div>
+      <div class="node lvl2"><span class="stat st-no">לא בנוי</span><span class="role">⚖️ תפקידי חברה נוספים</span><div class="desc">משפט חברה, אסטרטגיה, מייל, שיחות, חשבוניות — זרועות עתידיות של מנכ"ל החברה.</div></div>
+      <div class="node lvl3"><span class="stat st-built">בנוי ומוכח</span><span class="role">📦 מחלקת מאנדיי = מנכ"ל מאנדיי</span><div class="desc">מנהל את מערכת העבודה מאנדיי. מתאם את סוכני המחלקות בתוך מאנדיי. זו הזרוע היחידה שכבר קיימת.</div></div>
+      <div class="node lvl4"><span class="stat st-built">בנוי</span><span class="role">🧩 11 סוכני מאנדיי</span><div class="desc">משפטי · מכירות · שיווק · אנשי קשר · תכנון · פרויקטים · ראשי · סבג360 · מימון · אישי (נעול) · <b>פיננסי מאנדיי</b> (הבורד הפיננסי בלבד — לא כסף החברה).</div></div>
+    </div>
+  </section>
+
+  <!-- 2 built/not -->
+  <section class="card">
+    <h2 class="sec"><span class="num">2</span> מה בנוי, מה על הנייר, מה לא קיים <span class="tag">מצב אמיתי</span></h2>
+    <table>
+      <tr><th>שכבה</th><th>מצב</th><th>הערה</th></tr>
+      <tr><td><b>מחלקת מאנדיי</b> (מנכ"ל מאנדיי + 11 סוכנים)</td><td><span class="chip c-green">בנוי ומוכח</span></td><td>עובד באפליקציה, נבדק בפועל</td></tr>
+      <tr><td><b>מנכ"ל החברה</b> (המסמכים הקנוניים)</td><td><span class="chip c-amber">על הנייר</span></td><td>SPEC + SYSTEM-PROMPT מעוצבים v0.2 — אבל מתארים את רמת החברה, לא הותקנו</td></tr>
+      <tr><td><b>סמנכ"ל כספים של החברה</b></td><td><span class="chip c-red">לא קיים</span></td><td>כאן חיות החלטות הכסף האמיתיות</td></tr>
+      <tr><td><b>זרועות חברה נוספות</b> (מייל/שיחות/חשבוניות)</td><td><span class="chip c-red">לא קיים</span></td><td>חזון עתידי מהשיחות הקודמות</td></tr>
+    </table>
+  </section>
+
+  <!-- 3 C1 dissolves -->
+  <section class="card">
+    <h2 class="sec"><span class="num">3</span> C1 מתפוגגת — לא הייתה סתירה <span class="tag">הרווח הגדול</span></h2>
+    <div class="conflict green">
+      <h4><span class="chip c-green">נפתר</span> "נעילת הכספים" הייתה בלבול רמות שלי</h4>
+      <p>לקחתי את "המנכ"ל מנהל כסף" מהמסמכים הקנוניים (= מנכ"ל/סמנכ"ל <b>החברה</b>) והדבקתי אותו על הסוכן הפיננסי <b>של מאנדיי</b>. אלה שני יצורים שונים בשתי רמות.</p>
+      <p><b>הפיננסי של מאנדיי</b> — נעול בתוך מאנדיי, כמו שתכננת. <b>סמנכ"ל הכספים של החברה</b> — ינהל כסף אמיתי, שכבה מעל. אין ביניהם סתירה. שתי הרשומות בקנוני ("המנכ"ל מפעיל את סוכן הכספים") נכונות — הן פשוט מדברות על רמת החברה.</p>
+    </div>
+    <p class="footnote">ההחלטה שכבר קיבלת ("המנכ"ל רואה כסף, רק נחי משנה") — עכשיו ברורה: היא חלה על <b>מנכ"ל מאנדיי מול הבורד הפיננסי של מאנדיי</b>. הגרסה של "ראיית הבנק האמיתי" עולה לרמת החברה.</p>
+  </section>
+
+  <!-- 4 decisions by level -->
+  <section class="card">
+    <h2 class="sec"><span class="num">4</span> ההחלטות — ממופות לפי רמה <span class="tag">מה עכשיו, מה אחר כך</span></h2>
+    <p class="lead">התיקון ממיין מחדש את כל רשימת ההחלטות. הכסף עולה רמה; מה שנשאר עכשיו הוא רק מאנדיי.</p>
+    <div class="twocol">
+      <div class="col now">
+        <div class="h">✅ רמת מאנדיי — לסגור עכשיו</div>
+        <ul>
+          <li>ראיית הבורד הפיננסי של מאנדיי ע"י מנכ"ל מאנדיי <span class="done">✓ הוחלט: רואה, לא משנה</span></li>
+          <li>נעילת רשימת 12 הסוכנים כסופית <span class="d">ברירת מחדל: כן</span></li>
+          <li>זיכרון: 11 סוכנים כמו שהם, מנכ"ל מאנדיי משתדרג <span class="d">ברירת מחדל: כן</span></li>
+          <li>זמני דוח של עבודת מאנדיי <span class="d">ברירת מחדל: יומי 08:00, שבועי א׳ 09:00</span></li>
+          <li>משימה תקועה במאנדיי <span class="d">ברירת מחדל: 3 ימי עסקים (משפטי: 1)</span></li>
+          <li>הרשאות כתיבה במאנדיי <span class="d">ברירת מחדל: כמו שמותקן</span></li>
+          <li>העברת משימה בין אחראים <span class="d">ברירת מחדל: כן עם דיווח; שינוי עדיפות ליבה — לא בלי אישור</span></li>
+        </ul>
+      </div>
+      <div class="col later">
+        <div class="h">⏳ רמת החברה — ממתין לשכבה ההיא</div>
+        <ul>
+          <li>כרית הביטחון הכספית <span class="d">כסף אמיתי → סמנכ"ל כספים</span></li>
+          <li>ספי אישור להוצאות <span class="d">כסף אמיתי → סמנכ"ל כספים</span></li>
+          <li>אילו התחייבויות משפטיות תמיד דורשות אישור <span class="d">משפט חברה אמיתי</span></li>
+          <li>ראיית הבנק האמיתי <span class="d">סמנכ"ל כספים</span></li>
+          <li>בניית סמנכ"ל הכספים של החברה <span class="d">שכבה חדשה</span></li>
+          <li>בניית מנכ"ל החברה <span class="d">מהמסמכים הקנוניים</span></li>
+          <li>חיבורי מייל / שיחות / חשבוניות <span class="d">זרועות עתידיות</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 register -->
+  <section class="card">
+    <h2 class="sec"><span class="num">5</span> פנקס הסתירות — מעודכן <span class="tag">אחרי התיקון</span></h2>
+    <div class="conflict green"><h4><span class="chip c-green">C1 · נפתר</span> נעילת כספים</h4><p>לא הייתה סתירה — בלבול רמות. שני יצורים פיננסיים בשתי רמות.</p></div>
+    <div class="conflict amber"><h4><span class="chip c-amber">C2</span> זיכרון (11 דו-שכבתי, מנכ"ל 3 שכבות)</h4><p>נמשך — רמת מאנדיי, לסגירה עכשיו.</p></div>
+    <div class="conflict amber"><h4><span class="chip c-amber">C3</span> חיבורים (ChatGPT/Telegram/Claude Code)</h4><p>נמשך — עכשיו ברור שזו רמת החברה, לא מאנדיי.</p></div>
+    <div class="conflict green"><h4><span class="chip c-green">C4 · נסגר</span> קובצי זיכרון</h4><p>ללא שינוי.</p></div>
+    <div class="conflict amber"><h4><span class="chip c-amber">C5</span> רשימת 12 הסוכנים</h4><p>רמת מאנדיי — לנעול עכשיו.</p></div>
+    <div class="conflict red"><h4><span class="chip c-red">C6</span> אל תחזיר "מנכ"ל ממזג בעצמו"</h4><p>מלכודת ידועה — נסגר.</p></div>
+  </section>
+
+  <!-- next -->
+  <div class="next">
+    <h2>6 · הפעולה הבאה — אחת</h2>
+    <p>המפה מעודכנת למודל שתי הרמות. הכסף עלה רמה, הסתירה הגדולה נעלמה, ומה שנשאר לסגור עכשיו הוא <b>רק החלטות מאנדיי</b> — וכולן פשוטות עם ברירת מחדל.</p>
+    <div class="do">👈 נמשיך לסגור את 7 החלטות מאנדיי (אחת-אחת או כגוש), ואז נתחיל לתכנן את שכבת החברה — מנכ"ל החברה + סמנכ"ל כספים — מהמסמכים הקנוניים שכבר יש לנו.</div>
+  </div>
+
+  <p class="footnote" style="text-align:center;margin-top:24px;">
+    מפת התאמה — מודל שתי הרמות · 17.7.2026 · מעדכנת את המאסטר הסופי · הכל על הנייר, שום שינוי במערכת החיה
+  </p>
+
+</div>
+</body>
+</html>
