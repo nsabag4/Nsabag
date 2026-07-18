@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>עיצוב סוכן הזמן — נעול | סבג נדל"ן</title>
+<style>
+  :root{
+    --ink:#12203a; --muted:#5a6a86; --line:#dde5f0; --bg:#f4f7fc; --card:#ffffff;
+    --blue:#1e56c8; --green:#0f8a4d; --amber:#b5710a; --red:#c0392b; --purple:#6b3fa0; --gray:#64748b;
+    --teal:#0e7c86; --teal-bg:#e2f6f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Assistant","Rubik",Arial,sans-serif;line-height:1.7;}
+  .wrap{max-width:880px;margin:0 auto;padding:28px 20px 80px;}
+  header.top{background:linear-gradient(135deg,#0e7c86,#0b5a62);color:#fff;border-radius:20px;padding:28px 32px;box-shadow:0 14px 40px rgba(14,124,134,.22);}
+  header.top h1{margin:0 0 6px;font-size:26px;}
+  header.top .sub{opacity:.94;font-size:15px;}
+  header.top .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;}
+  header.top .meta span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);padding:4px 11px;border-radius:20px;font-size:12.5px;}
+
+  .iron{background:#12203a;color:#fff;border-radius:14px;padding:18px 22px;margin:18px 0;text-align:center;}
+  .iron .t{font-size:13px;letter-spacing:2px;opacity:.75;text-transform:uppercase;margin-bottom:6px;}
+  .iron .r{font-size:17px;font-weight:800;}
+  .iron .d{font-size:13px;opacity:.85;margin-top:6px;}
+
+  .dec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 20px;margin:12px 0;display:flex;gap:14px;box-shadow:0 2px 8px rgba(18,32,58,.04);}
+  .dec .n{flex:0 0 auto;width:34px;height:34px;border-radius:9px;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+  .dec .body{flex:1;}
+  .dec .t{font-weight:800;font-size:15.5px;margin-bottom:3px;}
+  .dec .d{font-size:13.5px;color:#33425e;}
+  .dec .prov{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:700;background:#e2f6f7;color:var(--teal);border-radius:20px;padding:2px 10px;}
+  .dec .nahi{display:inline-block;margin-top:6px;margin-inline-start:6px;font-size:11.5px;font-weight:700;background:#fdf2dd;color:var(--amber);border-radius:20px;padding:2px 10px;}
+
+  .card13{background:var(--card);border:2px solid var(--teal);border-radius:14px;padding:16px 20px;margin:14px 0;}
+  .card13 h3{margin:0 0 8px;font-size:16px;color:var(--teal);}
+  .card13 p{margin:4px 0;font-size:13.5px;}
+  .roster{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .roster span{font-size:12px;background:#f0f3f8;border:1px solid #e2e8f2;border-radius:16px;padding:3px 10px;}
+  .roster span.new{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:700;}
+  .roster span.lock{background:#f1eafb;border-color:#d9c7f0;}
+
+  .next{background:#fff;border:2px dashed #b8dfe2;border-radius:16px;padding:20px 24px;margin-top:22px;}
+  .next h2{margin:0 0 6px;font-size:18px;color:var(--teal);}
+  .next p{margin:5px 0;font-size:14px;color:#33425e;}
+  .footnote{color:var(--muted);font-size:12.5px;margin-top:18px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>⏱️ עיצוב סוכן הזמן — נעול</h1>
+    <div class="sub">8 החלטות עיצוב סגורות · הסוכן ה-13 · סבג נדל"ן</div>
+    <div class="meta">
+      <span>🗓️ 17.7.2026</span>
+      <span>🔒 8/8 נעולות</span>
+      <span>📄 על הנייר — הטמעה רק בהוראת "תטמיע"</span>
+    </div>
+  </header>
+
+  <div class="iron">
+    <div class="t">כלל הברזל של נחי</div>
+    <div class="r">לוח זמן אחד. הכל שם. אף פעם לא "שכחתי לבדוק שם".</div>
+    <div class="d">הראש לא צריך לזכור מקומות — המערכת מביאה הכל למקום אחד.</div>
+  </div>
+
+  <div class="dec">
+    <div class="n">1</div>
+    <div class="body">
+      <div class="t">החריג המבוקר לבידוד — מאושר</div>
+      <div class="d">סוכן הזמן הוא היחיד שקורא <b>תאריכים בלבד</b> בכל הלוחות (לא תוכן, לא סכומים). כותב רק ללוח שלו. לא מבצע, לא מזיז, לא משנה — רק מסתכל על הזמן ומתריע.</div>
+      <span class="prov">הוכרע</span><span class="nahi">הנחיית נחי: נייטיב קודם — כל מה שאוטומציות מאנדיי יודעות לעשות מובנה, הן עושות; הסוכן מוסיף רק שיפוט</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">2</div>
+    <div class="body">
+      <div class="t">לוחות נעולים — דדליין בלי תוכן</div>
+      <div class="d">הדדליינים מהלוחות הנעולים (פיננסי מאנדיי, אישי) <b>כן מופיעים</b> בלוח הזמן המרכזי — אבל <b>בלי אף מילה מהתוכן</b>: "🔒 דדליין מחר — לוח אישי". רק התאריך עובר. הנעילה נשמרת מוחלטת, ואתה לא מפספס כלום.</div>
+      <span class="prov">הוכרע</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">3</div>
+    <div class="body">
+      <div class="t">לוח זמן מרכזי אחד — עם תצוגות</div>
+      <div class="d">לא שלושה מקומות — <b>אחד</b>. תצוגות בתוכו: מה היום · מה תקוע · התקדמות פרויקטים · 🔒 דדליינים נעולים. מאחורי הקלעים שני סוכנים מזינים אותו (הראשי בונה את סדר היום, סוכן הזמן מנטר תקיעות וחריגות) — אבל אתה פותח <b>מקום אחד</b> בבוקר, וזהו.</div>
+      <span class="prov">הוכרע · נגזר מכלל הברזל</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">4</div>
+    <div class="body">
+      <div class="t">שני סוגי תאריכים — הערכות מול קשיחים</div>
+      <div class="d"><b>הערכות מקצועיות:</b> כל סוכן מחלקה מציע את משכי השלבים בתחומו ("מ-א׳ ל-ב׳ לוקח X") — כי הוא המומחה. מסומן כהערכה, לא כעובדה, מתכייל בשטח. <b>דדליינים קשיחים:</b> ליטיגציה, בתי משפט, היתרים — נכנסים <b>רק ממקור אמיתי</b> (אף פעם לא ניחוש), אי אפשר להזיז, ומקבלים <b>התראת היערכות מראש</b>: "עוד X ימים דיון — מתחילים להתכונן". חריגה מהערכה = 🟠 · דדליין קשיח מתקרב = 🔴.</div>
+      <span class="prov">הוכרע</span><span class="nahi">הרעיון של נחי: הסוכן המחלקתי מכיר את המחלקה שלו</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">5</div>
+    <div class="body">
+      <div class="t">הרשימה גדלה: 12 ← 13 סוכנים</div>
+      <div class="d">סוכן הזמן ⏱️ מצטרף רשמית — בדיוק לפי הכלל שקבענו: הוספה רק בהחלטה מפורשת של נחי. מקומו: מתחת למנכ"ל מאנדיי.</div>
+      <span class="prov">הוכרע</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">6</div>
+    <div class="body">
+      <div class="t">לוח גדול ויפה — צבע קבוע לכל סוכן</div>
+      <div class="d">לוח הזמן המרכזי צבוע: <b>לכל אחד מ-12 הסוכנים צבע קבוע משלו</b>, זהה בכל התצוגות (יומן, גאנט, תקיעות). מבט אחד — ואתה יודע של איזו מחלקה כל משימה, בלי לקרוא אף מילה. הנעולים מופיעים בצבעם עם 🔒 ובלי תוכן.</div>
+      <span class="prov">הוכרע</span><span class="nahi">בקשת נחי · נייטיב: צבע-לפי-לוח מובנה בדשבורדים של מאנדיי</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">7</div>
+    <div class="body">
+      <div class="t">גאנט על ציר הזמן — תצוגה מובנית של מאנדיי</div>
+      <div class="d">סוכן הזמן <b>דורש ממאנדיי תצוגת גאנט מובנית</b>: פסים על ציר הזמן שמראים איך דברים מתקדמים — כל פרויקט ושלביו, מה הושלם, מה רץ עכשיו, ואיפה פס שהיה אמור להיגמר ועדיין נמשך (=החריגה קופצת לעין). הסוכן לא בונה גאנט מאפס — מגדיר ומתחזק את מה שמאנדיי כבר יודעת לעשות.</div>
+      <span class="prov">הוכרע</span><span class="nahi">בקשת נחי · נייטיב קודם</span>
+    </div>
+  </div>
+
+  <div class="dec">
+    <div class="n">8</div>
+    <div class="body">
+      <div class="t">אזור המוטיבציה — מסלול ב׳ מקבל בית רשמי</div>
+      <div class="d">בראש הלוח המרכזי (לא לוח נפרד — כלל הברזל!) אזור שמדבר לרגש עם עובדות אמיתיות בלבד: <b>"עוד 2 משימות ואתה עובר שלב"</b> · <b>"נשאר רק X — לא חבל לעצור עכשיו?"</b> · <b>"💰 תסיים את זה ומשתחרר תשלום מהלקוח"</b>. המנוע הרגשי מניע — העובדות נשארות קרות: הספירות אמיתיות, ותגית "משחררת תשלום" מסומנת ע"י סוכן המחלקה (סוכן הזמן לא רואה סכומים — רק את התגית). פריט תקוע ב-90% מוצג כ"כמעט ניצחון" ולא ככישלון.</div>
+      <span class="prov">הוכרע</span><span class="nahi">רעיון של נחי · מסלול ב׳ רתום בעד העסק, בלי לגעת בעובדות</span>
+    </div>
+  </div>
+
+  <div class="card13">
+    <h3>📋 הרשימה הרשמית — 13 סוכני מאנדיי</h3>
+    <div class="roster">
+      <span>1 · מנכ"ל מאנדיי</span>
+      <span>2 · משפטי</span>
+      <span class="lock">3 · אישי 🔒</span>
+      <span>4 · מכירות</span>
+      <span>5 · שיווק</span>
+      <span>6 · אנשי קשר</span>
+      <span>7 · תכנון ובנייה</span>
+      <span>8 · פרויקטים</span>
+      <span>9 · עבודה ראשית</span>
+      <span class="lock">10 · פיננסי מאנדיי 🔒</span>
+      <span>11 · סבג 360</span>
+      <span>12 · מימון</span>
+      <span class="new">13 · זמן ⏱️ חדש</span>
+    </div>
+  </div>
+
+  <div class="next">
+    <h2>▶️ מה עכשיו</h2>
+    <p><b>העיצוב סגור.</b> כדי שסוכן הזמן יהפוך לאמיתי כמו 12 האחרים, נשאר: (א) לכתוב את הפרומפט המלא שלו — עבודת נייר, אפשר עכשיו; (ב) להטמיע — עמודות תאריך, לוח מרכזי, אוטומציות נייטיב, ופרויקט חדש באפליקציה — רק בהוראת "תטמיע".</p>
+    <p>וברקע ממתינות במפת הדרכים: שכבת החברה (מנכ"ל חברה + סמנכ"ל כספים) · המסלול הכפול · נטרול הזומבים · סוכן הבנייה.</p>
+  </div>
+
+  <p class="footnote">עיצוב סוכן הזמן · 17.7.2026 · הכל על הנייר · שום שינוי במערכת החיה עד הוראת "תטמיע" מפורשת</p>
+
+</div>
+</body>
+</html>
