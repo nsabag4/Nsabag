@@ -81,4 +81,4 @@ sabag-operations-agent ‏9308678 · lead-pipeline ‏9308679 · legal ‏930868
 
 ## מי נוגע במאנדיי (הפניות)
 
-סוכני המחלקות (`../07-Department-Agents/`) — כל אחד בלוחות שלו · המסכם (`../05-AI-Framework/Call-Recording/`) — כותב סיכומי שיחות · שומר זמן (`../06-Development/Smart-Time/`) — קורא שיחות לחזרה ומסמן בוצע · הרוטינות (דוח בוקר, סריקה שבועית).
+סוכני המחלקות (`../07-Department-Agents/`) — כל אחד בלוחות שלו · המסכם (`../07-Department-Agents/Call-Summary-Agent/`) — כותב סיכומי שיחות · שומר זמן (`../06-Development/Smart-Time/`) — קורא שיחות לחזרה ומסמן בוצע · הרוטינות (דוח בוקר, סריקה שבועית).
