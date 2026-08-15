@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(/**/.env)",
+      "Read(/**/*.token)",
+      "Read(/**/*.key)",
+      "Read(/**/*.pem)",
+      "Read(/**/secrets.*)",
+      "Read(/**/CLAUDE.local.md)",
+      "Read(/**/state.json)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git reset --hard:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(rm:*)",
+      "Bash(git rm:*)",
+      "Edit(/00-Constitution/**)",
+      "Edit(/09-Monday-Agents/agents/**)",
+      "Edit(/07-Department-Agents/**)",
+      "Edit(/company-layer/00-EXTERNAL-AGENTS-LAW.md)",
+      "Edit(/99-Intake/**)",
+      "mcp__monday_com__*"
+    ]
+  }
+}
